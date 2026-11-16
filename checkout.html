@@ -42,8 +42,21 @@
 <input class="field" id="custName" placeholder="Your name (for verification)">
 <input class="field" id="custRef" placeholder="GCash / Maya Reference No. (after you pay)">
 <div class="pay-box"><b>Pay here:</b><br>GCash: <b>0917-XXX-XXXX</b> — change to your real number<br>Maya: <b>0917-XXX-XXXX</b> • Bank: <b>Your Bank • 1234-5678-90</b><br><small>Send payment, then paste your reference number above.</small></div>
-<div class="row-btns"><button class="btn btn-outline" onclick="goStep(2)">← Back</button><button class="btn btn-green full" onclick="submitOrder()">Submit for Verification →</button></div>
+
+<!-- ═══ NEW: proof screenshot upload ═══ -->
+<label style="display:block;margin:16px 0 4px;font-weight:800;font-size:13px">
+  📷 GCash / Maya Screenshot <span style="color:var(--muted);font-weight:400">(optional — speeds up approval)</span>
+</label>
+<input type="file" id="proofInput" accept="image/*" class="field">
+<p id="proofName" style="font-size:12px;color:var(--muted);margin:4px 0 12px"></p>
+<!-- ═══ /NEW ═══ -->
+
+<div class="row-btns"><button class="btn btn-outline" onclick="goStep(2)">← Back</button><button class="btn btn-green full" id="submitBtn" onclick="submitOrder()">Submit for Verification →</button></div>
+<p id="orderError" style="color:var(--red);font-size:13px;margin-top:12px;text-align:center"></p>
 </div>
 </div></section></main>
 <footer class="site-footer" id="footer"><div class="footer-lights">✦　❄　✧　🎄　✧　❄　✦</div><div class="footer-inner wrap"><div class="footer-brand"><span class="brand-script">Pasko</span><span>Photo Magic</span></div><p>Old foto, bagong saya ng Pasko.</p><div class="socials"><a href="#" aria-label="Facebook">f</a><a href="#" aria-label="Instagram">◎</a><a href="#" aria-label="TikTok">♪</a></div><div class="footer-links"><a href="index.html">About</a><a href="index.html#how">How it Works</a><a href="index.html#styles">Photo Styles</a><a href="index.html#faq">FAQs</a></div><div class="payments"><span>GCash</span><span>Maya</span><span>VISA</span><span>Mastercard</span></div><small>© 2026 Pasko Photo Magic · Made with ❤️ in the Philippines</small></div></footer>
-<button class="help-button" id="helpButton" aria-label="Help">✦</button><div class="toast" id="toast" role="status" aria-live="polite">Salamat! Choose a package to start your Christmas magic. 🎄</div><script src="script.js"></script></body></html>
+<button class="help-button" id="helpButton" aria-label="Help">✦</button><div class="toast" id="toast" role="status" aria-live="polite">Salamat! Choose a package to start your Christmas magic. 🎄</div>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="script.js"></script></body></html>
