@@ -3,7 +3,7 @@
 // i-set ang window.PASKO_SUPABASE_URL / ANON_KEY sa index.html
 // o i-fill ang defaults sa ibaba pagkatapos ng `supabase/schema.sql`
 // ============================================================
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = window.PASKO_SUPABASE_URL || 'https://YOUR-PROJECT.supabase.co'
 const SUPABASE_ANON_KEY = window.PASKO_SUPABASE_ANON_KEY || 'YOUR-ANON-KEY'
