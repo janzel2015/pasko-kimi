@@ -5,12 +5,12 @@
 // ============================================================
 import { createClient } from '@supabase/supabase-js';
 
-const SUPABASE_URL = window.https://vllqavcfqydtscbdrcex.supabase.co || 'https://YOUR-PROJECT.supabase.co'
-const SUPABASE_ANON_KEY = window.sb_publishable_00WuqggovnPv7Kve34jdag_PjYzPtO7 || 'YOUR-ANON-KEY'
+const SUPABASE_URL = window.https://vllqavcfqydtscbdrcex.supabase.co'; || 'https://YOUR-PROJECT.supabase.co'
+const SUPABASE_ANON_KEY = window.'sb_publishable_00WuqggovnPv7Kve34jdag_PjYzPtO7';  || 'YOUR-ANON-KEY'
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
-export const CONFIGURED = !SUPABASE_URL.includes('pasko-ai')
+export const CONFIGURED = !SUPABASE_URL.includes('YOUR-PROJECT')
 
 // ---------- CMS SETTINGS ----------
 export const DEFAULT_SETTINGS = {
