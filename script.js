@@ -210,7 +210,7 @@ document.querySelectorAll('#payMethods button').forEach(b => b.addEventListener(
 }));
 
 // =====================================
-// SUBMIT ORDER (called by onclick="submitOrder()")
+// SUBMIT ORDER (Generates Pre-Link)
 // =====================================
 async function submitOrder() {
   const errEl = document.getElementById('orderError');
@@ -229,10 +229,12 @@ async function submitOrder() {
   if (btn) { btn.disabled = true; btn.textContent = 'Uploading…'; }
 
   try {
+    // 1. Upload photo to Supabase Storage
     const photoPath = `uploads/${crypto.randomUUID()}-${photoFile.name}`;
     const { error: upErr } = await sb.storage.from('uploads').upload(photoPath, photoFile);
     if (upErr) throw upErr;
 
+    // 2. Upload proof
     let proofPath = null;
     if (proofFile) {
       proofPath = `uploads/${crypto.randomUUID()}-${proofFile.name}`;
@@ -240,21 +242,26 @@ async function submitOrder() {
       if (pErr) throw pErr;
     }
 
-    const { data, error } = await sb.functions.invoke('submit-order', {
-      body: {
-        customer_name: name,
-        contact: ref || 'GCash ref pending',
-        package: selectedPlan.code,
-        template_name: selectedTpl.name,
-        template_prompt: selectedTpl.prompt,
-        photo_path: photoPath,
-        payment_proof_path: proofPath,
-        payment_method: selectedPay,
-      },
-    });
-    if (error) throw error;
+    // 3. Generate Order Code & Secret Token for Pre-Link
+    const orderCode = 'PK-' + Math.floor(1000 + Math.random() * 9000);
+    const deliveryToken = crypto.randomUUID(); // Secret token
 
-    window.location.href = `success.html?code=${data.code}`;
+    // 4. Insert directly into Supabase DB
+    const { error: dbErr } = await sb.from('orders').insert({
+      order_code: orderCode,
+      delivery_token: deliveryToken,
+      customer_name: name,
+      contact_info: ref || 'GCash ref pending',
+      package: selectedPlan.code,
+      photo_url: photoPath,
+      payment_proof_url: proofPath,
+      status: 'pending'
+    });
+    if (dbErr) throw dbErr;
+
+    // 5. Redirect to success page
+    window.location.href = `success.html?code=${orderCode}&token=${deliveryToken}`;
+    
   } catch (e) {
     if (errEl) errEl.textContent = 'Error: ' + (e.message || e);
     if (btn) { btn.disabled = false; btn.textContent = 'Submit for Verification →'; }
@@ -275,74 +282,112 @@ async function submitOrder() {
 })();
 
 // =====================================
-// SUCCESS PAGE — LIVE STATUS POLLING
+// SUCCESS PAGE — Show Pre-Link & Live Status
 // =====================================
 (function () {
   const el = document.getElementById('orderSummary');
   if (!el) return;
-  const code = new URLSearchParams(location.search).get('code');
-  if (!code) { el.textContent = 'No order code found.'; return; }
+  
+  const params = new URLSearchParams(location.search);
+  const code = params.get('code');
+  const token = params.get('token');
+  
+  if (!code || !token) { el.textContent = 'Missing order details.'; return; }
   if (!sb) { el.textContent = 'Config missing.'; return; }
 
-  async function refresh() {
-    const { data, error } = await sb.functions.invoke('order-status', { body: { code } });
-    if (error || !data) {
-      el.innerHTML = `<b>Order code:</b> ${code}<br>Status: <span class="status-badge error">Not found</span>`;
-      return;
-    }
-    const statusLabel = {
-      pending: '⏳ Waiting for payment verification',
-      approved: '✅ Payment approved — generating your images',
-      generating: '🎨 Creating your Christmas portraits',
-      completed: `🎁 Ready! <a href="${window.APP_CONFIG.DELIVERY_BASE}/deliver.html?code=${code}">Open delivery page</a>`,
-      rejected: '❌ Order rejected — contact us',
-    }[data.status] || data.status;
+  const preLink = `${window.location.origin}/delivery.html?code=${code}&token=${token}`;
 
-    el.innerHTML = `
-      <b>Order code:</b> ${code}<br>
-      <b>Package:</b> ${data.package}<br>
-      <b>Status:</b> <span class="status-badge">${statusLabel}</span>
-    `;
-  }
-  refresh();
-  setInterval(refresh, 15000);
+  el.innerHTML = `
+    <div style="background:#edf6ef; padding:20px; border-radius:12px; text-align:center; margin-bottom:20px;">
+      <h3 style="margin-top:0;">📌 Save this link!</h3>
+      <p>When your photos are ready, open this link to automatically download them.</p>
+      <a href="${preLink}" style="display:inline-block; background:#075b3d; color:white; padding:10px 20px; border-radius:20px; text-decoration:none; font-weight:bold; margin-top:10px;">Your Delivery Link</a>
+    </div>
+    
+    <b>Order code:</b> ${code}<br>
+    <b>Status:</b> <span class="status-badge" id="statusText">⏳ Waiting for payment verification</span>
+  `;
+
+  // Poll to update the status text
+  setInterval(async () => {
+    const { data } = await sb.from('orders').select('status').eq('order_code', code).single();
+    if (data) {
+      const statusLabel = {
+        pending: '⏳ Waiting for payment verification',
+        approved: '✅ Payment approved — admin is preparing your images',
+        completed: '🎁 Ready! Click your Delivery Link above.',
+        rejected: '❌ Order rejected — contact us',
+      }[data.status] || data.status;
+      
+      document.getElementById('statusText').innerText = statusLabel;
+    }
+  }, 10000);
 })();
 
 // =====================================
-// DELIVERY PAGE — access code unlock
+// DELIVERY PAGE — Auto-Download Polling
 // =====================================
 (function () {
-  const gate = document.getElementById('accessGate');
-  if (!gate) return;
-  const code = new URLSearchParams(location.search).get('code');
-  if (!code) { gate.innerHTML = 'Missing order code.'; return; }
-  if (!sb) { gate.innerHTML = 'Config missing.'; return; }
+  const container = document.getElementById('deliveryContainer');
+  if (!container) return; // Only runs on delivery.html
+  
+  const params = new URLSearchParams(location.search);
+  const code = params.get('code');
+  const token = params.get('token');
+  
+  if (!code || !token) { container.innerHTML = 'Missing order details.'; return; }
+  if (!sb) { container.innerHTML = 'Config missing.'; return; }
 
-  const btn = document.getElementById('unlockBtn');
-  const input = document.getElementById('accessInput');
-  const err = document.getElementById('accessError');
+  let hasDownloaded = false;
 
-  if (btn) {
-    btn.addEventListener('click', async () => {
-      err.textContent = '';
-      const access = (input.value || '').trim().toUpperCase();
-      if (!access) return;
+  async function checkStatus() {
+    const { data, error } = await sb
+      .from('orders')
+      .select('status, final_file_url')
+      .eq('order_code', code)
+      .eq('delivery_token', token)
+      .single();
 
-      const { data, error } = await sb.functions.invoke('deliver', { body: { code, access } });
-      if (error || !data?.images) { err.textContent = 'Invalid access code.'; return; }
+    if (error || !data) {
+      container.innerHTML = '<h2>❌ Invalid or expired link.</h2>';
+      return;
+    }
 
-      document.getElementById('accessGate').style.display = 'none';
-      const gallery = document.getElementById('deliveryGallery');
-      gallery.style.display = 'grid';
-      data.images.forEach(url => {
-        const img = document.createElement('img');
-        img.src = url;
-        gallery.appendChild(img);
-      });
-      if (data.package === 'P149' && data.slideshow_url) {
-        document.getElementById('mp4Area').style.display = 'block';
-        document.getElementById('mp4Link').href = data.slideshow_url;
-      }
-    });
+    if (data.status === 'pending' || data.status === 'approved') {
+      container.innerHTML = `
+        <div style="text-align:center; padding: 50px 20px;">
+          <h2>Fetching your Christmas Magic...</h2>
+          <p>Status: ${data.status === 'pending' ? 'Waiting for Admin Approval' : 'Admin is preparing your photos'}</p>
+          <p style="color:#666; font-size:14px;">We are checking automatically every 5 seconds.</p>
+        </div>
+      `;
+      setTimeout(checkStatus, 5000);
+      return;
+    }
+
+    if (data.status === 'completed' && data.final_file_url) {
+      if (hasDownloaded) return;
+      hasDownloaded = true;
+
+      container.innerHTML = `
+        <div style="text-align:center; padding: 50px 20px;">
+          <h2>🎉 Your photos are ready!</h2>
+          <p>Your download should have started automatically.</p>
+          <a href="${data.final_file_url}" style="display:inline-block; background:#075b3d; color:white; padding:15px 30px; border-radius:30px; text-decoration:none; font-weight:bold; margin-top:20px;">
+            ⬇ Click here if it didn't download
+          </a>
+        </div>
+      `;
+      
+      // Trigger Auto-Download
+      const a = document.createElement('a');
+      a.href = data.final_file_url;
+      a.download = `Pasko-Memories-${code}.mp4`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
   }
+
+  checkStatus();
 })();
