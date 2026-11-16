@@ -1,5 +1,5 @@
 // api/_lib/supabase.js — shared server-side Supabase admin client
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createClient } from '@supabase/supabase-js';
 
 export function getAdmin() {
   const url = process.env.SUPABASE_URL
