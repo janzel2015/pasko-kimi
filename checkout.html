@@ -1,0 +1,49 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#edf6ef"><title>Checkout — Pasko Photo Magic</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700;800&family=Great+Vibes&display=swap" rel="stylesheet"><link rel="stylesheet" href="styles.css"></head><body><header class="site-header">
+  <a class="brand" href="index.html"><span class="brand-script">Pasko</span><span>Photo Magic</span></a>
+  <nav class="desktop-nav"><a href="index.html#pricing">Packages</a><a href="index.html#how">How it works</a><a href="index.html#styles">Photo styles</a><a href="index.html#faq">FAQs</a></nav>
+  <div class="header-actions"><button class="icon-btn" id="menuToggle" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button><a class="btn btn-red btn-small" href="checkout.html">Create ✦</a></div>
+</header>
+<nav class="mobile-menu" id="mobileMenu"><a href="index.html#pricing">Packages</a><a href="index.html#how">How it works</a><a href="index.html#styles">Photo styles</a><a href="index.html#faq">FAQs</a></nav>
+<main>
+<section class="section wrap" id="create">
+<div class="section-heading"><span class="eyebrow">✦ START YOUR ORDER</span><h2>Create Your 5 Photos</h2><p class="script-line">in 3 easy steps</p><p class="subcopy">Upload → Template → Payment. After verification, your 5 photos appear on the next page.</p></div>
+<div class="order-box">
+<div class="stepper" id="stepper"><span class="active" data-step="1">1 • Upload Photo</span><span data-step="2">2 • Choose Template</span><span data-step="3">3 • Payment</span></div>
+
+<div class="order-step active" data-step="1">
+<h3>1. Upload your old photo</h3><p class="subcopy" style="margin-left:0">Any clear photo of a face — old, faded or new.</p>
+<label class="upload-drop" for="photoInput">📸 Click to upload or drag photo here<br><small>JPG / PNG — face must be clear</small><img id="previewImg" alt="Your uploaded photo"><input type="file" id="photoInput" accept="image/*" hidden></label>
+<p id="photoName" style="font-size:12px;color:var(--muted)"></p>
+<button class="btn btn-red full" onclick="goStep(2)">Continue → Choose Template</button>
+<p style="text-align:center;font-size:12px;margin-top:12px"><a href="index.html">← Back to Home</a></p>
+</div>
+
+<div class="order-step" data-step="2">
+<h3>2. Choose your template</h3><p class="subcopy" style="margin-left:0">Pick your first Christmas look. All five styles are included.</p>
+<div class="tpl-grid" id="tplGrid">
+<button type="button" data-tpl="Binibining Gabi ❤️"><b>Binibining Gabi ❤️</b><small>Elegant glow</small></button>
+<button type="button" data-tpl="Sweater Weather 🎄"><b>Sweater Weather 🎄</b><small>Cozy vibes</small></button>
+<button type="button" data-tpl="Bright Celebration ⭐"><b>Bright Celebration ⭐</b><small>Bright &amp; cheerful</small></button>
+<button type="button" data-tpl="Traditional / Bahay Kubo 🏡"><b>Bahay Kubo 🏡</b><small>Nostalgic Filipino</small></button>
+<button type="button" data-tpl="Christmas Elegance ✨"><b>Christmas Elegance ✨</b><small>Classic glamour</small></button>
+</div>
+<p id="tplPicked" style="font-size:13px;font-weight:700;margin:12px 0">Selected: Binibining Gabi ❤️ (default)</p>
+<div class="row-btns"><button class="btn btn-outline" onclick="goStep(1)">← Back</button><button class="btn btn-red full" onclick="goStep(3)">Continue → Payment</button></div>
+</div>
+
+<div class="order-step" data-step="3">
+<h3>3. Payment</h3><p class="subcopy" style="margin-left:0">Choose ₱99 Basic or ₱149 with music. Pay with GCash, Maya or bank transfer.</p>
+<div class="pay-grid">
+<button type="button" class="pay-opt selected" data-plan="Basic Magic — ₱99 — No Music" data-price="99"><b>₱99 — Basic Magic</b><br><small>5 Christmas Portraits • No Music</small></button>
+<button type="button" class="pay-opt" data-plan="Magic with Music — ₱149" data-price="149"><b>₱149 — Magic with Music</b><br><small>5 Portraits + Music</small></button>
+</div>
+<p style="font-weight:800;font-size:13px;margin:16px 0 6px">Payment method:</p>
+<div class="pay-methods" id="payMethods"><button type="button" class="selected">GCash</button><button type="button">Maya</button><button type="button">Bank Transfer</button></div>
+<input class="field" id="custName" placeholder="Your name (for verification)">
+<input class="field" id="custRef" placeholder="GCash / Maya Reference No. (after you pay)">
+<div class="pay-box"><b>Pay here:</b><br>GCash: <b>0917-XXX-XXXX</b> — change to your real number<br>Maya: <b>0917-XXX-XXXX</b> • Bank: <b>Your Bank • 1234-5678-90</b><br><small>Send payment, then paste your reference number above.</small></div>
+<div class="row-btns"><button class="btn btn-outline" onclick="goStep(2)">← Back</button><button class="btn btn-green full" onclick="submitOrder()">Submit for Verification →</button></div>
+</div>
+</div></section></main>
+<footer class="site-footer" id="footer"><div class="footer-lights">✦　❄　✧　🎄　✧　❄　✦</div><div class="footer-inner wrap"><div class="footer-brand"><span class="brand-script">Pasko</span><span>Photo Magic</span></div><p>Old foto, bagong saya ng Pasko.</p><div class="socials"><a href="#" aria-label="Facebook">f</a><a href="#" aria-label="Instagram">◎</a><a href="#" aria-label="TikTok">♪</a></div><div class="footer-links"><a href="index.html">About</a><a href="index.html#how">How it Works</a><a href="index.html#styles">Photo Styles</a><a href="index.html#faq">FAQs</a></div><div class="payments"><span>GCash</span><span>Maya</span><span>VISA</span><span>Mastercard</span></div><small>© 2026 Pasko Photo Magic · Made with ❤️ in the Philippines</small></div></footer>
+<button class="help-button" id="helpButton" aria-label="Help">✦</button><div class="toast" id="toast" role="status" aria-live="polite">Salamat! Choose a package to start your Christmas magic. 🎄</div><script src="script.js"></script></body></html>
