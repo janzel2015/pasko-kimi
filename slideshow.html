@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Christmas Slideshow · Pasko Photo Magic</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700;800&family=Playfair+Display:wght@700;800&family=Great+Vibes&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  body{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:18px;padding:20px}
+  .stage{position:relative;width:min(420px,92vw);aspect-ratio:9/16;border-radius:22px;overflow:hidden;box-shadow:var(--shadow);background:#03452f}
+  .stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s}
+  .stage img.on{opacity:1}
+  .stage .caption{position:absolute;bottom:18px;left:0;right:0;text-align:center;color:#f4dca4;font-family:var(--serif);font-size:20px;text-shadow:0 2px 8px rgba(0,0,0,.5);z-index:2}
+  .progress{position:absolute;top:0;left:0;height:4px;background:var(--gold);z-index:3;transition:width .2s linear}
+  h1{font-family:var(--serif);color:var(--green-dark);margin:0}
+</style>
+</head>
+<body>
+<h1>🎬 Pasko Memories</h1>
+<p class="plan-detail" id="sub">Your 30-second Christmas magic ✦</p>
+<div class="stage">
+  <div class="progress" id="progress"></div>
+  <div id="slides"></div>
+  <div class="caption" id="caption">♫ Pasko Memories</div>
+</div>
+<div class="row-btns">
+  <button class="btn btn-red" id="playBtn">▶ Play</button>
+  <button class="btn btn-outline" id="musicBtn">🔔 Music: Off</button>
+</div>
+<a class="more-link" href="index.html">← Back to home</a>
+<script type="module" src="slideshow.js"></script>
+</body>
+</html>

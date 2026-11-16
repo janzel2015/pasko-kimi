@@ -1,0 +1,13 @@
+{
+  "name": "pasko-photo-ai",
+  "version": "1.0.0",
+  "description": "Pasko Photo Magic — old foto, magical Xmas! AI Christmas portraits (₱99 / ₱149) for Filipino families.",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "fluent-ffmpeg": "^2.1.3"
+  }
+}
