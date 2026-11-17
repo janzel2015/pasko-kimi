@@ -1,140 +1,15 @@
-// =====================================
-// ADMIN CONFIGURATION
-// =====================================
-// Change this to your actual Supabase config (or link config.js)
-const SUPABASE_URL = 'https://vllqavcfqydtscbdrcex.supabase.co'; 
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsbHFhdmNmcXlkdHNjYmRyY2V4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDk...';
-
-// Change this to your secret password!
-const ADMIN_PASSWORD = '@Jesus143'; 
-
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-// =====================================
-// LOGIN & LOGOUT
-// =====================================
-function login() {
-  const key = document.getElementById('adminKeyInput').value;
-  if (key === ADMIN_PASSWORD) {
-    localStorage.setItem('pasko_admin_logged_in', 'true');
-    checkAuth();
-  } else {
-    alert('Maling password!');
-  }
-}
-
-function logout() {
-  localStorage.removeItem('pasko_admin_logged_in');
-  checkAuth();
-}
-
-function checkAuth() {
-  const isLoggedIn = localStorage.getItem('pasko_admin_logged_in') === 'true';
-  document.getElementById('loginScreen').style.display = isLoggedIn ? 'none' : 'block';
-  document.getElementById('dashboard').style.display = isLoggedIn ? 'block' : 'none';
-  
-  if (isLoggedIn) loadOrders('pending', document.querySelector('.tab-btn'));
-}
-
-// Check auth on page load
-checkAuth();
-
-// =====================================
-// LOAD ORDERS
-// =====================================
-async function loadOrders(status, btnElement) {
-  // Update active tab UI
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  if (btnElement) btnElement.classList.add('active');
-
-  const list = document.getElementById('ordersList');
-  list.innerHTML = '<p>Loading orders...</p>';
-
-  const { data, error } = await sb
-    .from('orders')
-    .select('*')
-    .eq('status', status)
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    list.innerHTML = `<p style="color:red">Error: ${error.message}</p>`;
-    return;
-  }
-
-  if (data.length === 0) {
-    list.innerHTML = '<p>No orders found in this category.</p>';
-    return;
-  }
-
-  list.innerHTML = '';
-  data.forEach(order => {
-    // Get public URL for the uploaded photo
-    const { data: photoData } = sb.storage.from('uploads').getPublicUrl(order.photo_url);
-    const photoUrl = photoData?.publicUrl || '';
-
-    const card = document.createElement('div');
-    card.className = 'order-card';
-    card.innerHTML = `
-      <img src="${photoUrl}" class="order-image" alt="Photo">
-      <div class="order-details">
-        <p><b>Order Code:</b> ${order.order_code}</p>
-        <p><b>Customer:</b> ${order.customer_name} (${order.contact_info})</p>
-        <p><b>Package:</b> ${order.package}</p>
-        <p><b>Status:</b> <span class="status-badge status-${order.status}">${order.status.toUpperCase()}</span></p>
-        <p style="font-size: 12px; color: #666;">Date: ${new Date(order.created_at).toLocaleString()}</p>
-      </div>
-      <div class="actions">
-        ${order.status === 'pending' ? `<button class="btn btn-approve" onclick="updateStatus('${order.id}', 'approved')">✅ Approve Payment</button>` : ''}
-        ${order.status === 'approved' ? `<button class="btn btn-complete" onclick="completeOrder('${order.id}')">🎁 Mark as Completed</button>` : ''}
-        ${order.status === 'completed' ? `<p style="color:green; font-weight:bold; margin:0;">Ready to Download</p>` : ''}
-        <button class="btn btn-reject" onclick="updateStatus('${order.id}', 'rejected')">❌ Reject</button>
-      </div>
-    `;
-    list.appendChild(card);
-  });
-}
-
-// =====================================
-// UPDATE STATUS (Approve/Reject)
-// =====================================
-async function updateStatus(orderId, newStatus) {
-  if (!confirm(`Are you sure you want to mark this order as ${newStatus}?`)) return;
-
-  const { error } = await sb
-    .from('orders')
-    .update({ status: newStatus })
-    .eq('id', orderId);
-
-  if (error) {
-    alert('Error updating order: ' + error.message);
-  } else {
-    alert('Order updated successfully!');
-    loadOrders(newStatus, document.querySelector(`.tab-btn.active`)); 
-  }
-}
-
-// =====================================
-// COMPLETE ORDER (Provide Final Link)
-// =====================================
-async function completeOrder(orderId) {
-  // In a real server-side render, this URL is generated automatically.
-  // For now, we ask the admin to paste the final MP4 link.
-  const mp4Url = prompt("Paste the final MP4 Video URL here (from Supabase Storage or server):");
-  
-  if (!mp4Url) return; // User cancelled
-
-  const { error } = await sb
-    .from('orders')
-    .update({ 
-      status: 'completed',
-      final_file_url: mp4Url 
-    })
-    .eq('id', orderId);
-
-  if (error) {
-    alert('Error completing order: ' + error.message);
-  } else {
-    alert('Order marked as completed! The user\'s Pre-Link will now auto-download.');
-    loadOrders('approved', document.querySelector(`.tab-btn.active`)); 
-  }
-}
+﻿const els={loginScreen:document.getElementById('loginScreen'),dashboard:document.getElementById('dashboard'),loginInput:document.getElementById('adminKeyInput'),ordersList:document.getElementById('ordersList')};
+async function api(p,o={}){ const r=await fetch(p,{...o,headers:{'Content-Type':'application/json',...(o.headers||{})}}); if(r.status===401){ showLogin(); throw new Error('Unauthorized'); } const j=await r.json().catch(()=>({})); if(!r.ok) throw new Error(j.error||'Failed'); return j; }
+function showLogin(){ els.loginScreen.style.display='block'; els.dashboard.style.display='none'; }
+function showDashboard(){ els.loginScreen.style.display='none'; els.dashboard.style.display='block'; }
+async function checkSession(){ try{ const r=await fetch('/api/admin/session'); const j=await r.json(); return j.authenticated; }catch{ return false; } }
+async function login(){ const pwd=els.loginInput?.value?.trim(); if(!pwd) return alert('Enter admin key'); try{ await api('/api/admin/login',{method:'POST',body:JSON.stringify({password:pwd})}); location.reload(); }catch{ alert('Maling password!'); } }
+async function logout(){ await fetch('/api/admin/logout',{method:'POST'}); location.reload(); }
+window.login=login; window.logout=logout;
+async function loadOrders(status,btn){ document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); if(btn) btn.classList.add('active'); els.ordersList.innerHTML='<p>Loading...</p>'; try{ const d=await api(`/api/admin/orders?status=${status||'pending'}`); const orders=d.orders||[]; if(!orders.length){ els.ordersList.innerHTML='<p>No orders</p>'; return; } els.ordersList.innerHTML=''; orders.forEach(o=>{ const div=document.createElement('div'); div.className='order-card'; const esc=s=>(s||'').toString().replace(/</g,'&lt;'); div.innerHTML=`<img src="${esc(o.photo_signed_url)}" class="order-image" onerror="this.style.display='none'"><div class="order-details"><p><b>${esc(o.order_code)}</b> - ${esc(o.customer_name)} (${esc(o.contact_info)})</p><p>${esc(o.package)} - ${esc(o.status).toUpperCase()}</p><p style="font-size:12px;color:#666;">${new Date(o.created_at).toLocaleString()}</p>${o.payment_proof_signed_url?`<a href="${o.payment_proof_signed_url}" target="_blank">View GCash Proof</a>`:''}</div><div class="actions">${o.status==='pending'?`<button class="btn btn-approve" onclick="updateStatus('${o.id}','approved')">Approve</button>`:''}${o.status==='approved'?`<button class="btn btn-complete" onclick="startGenerate('${o.id}')">Generate</button>`:''}<button class="btn btn-reject" onclick="updateStatus('${o.id}','rejected')">Reject</button></div>`; els.ordersList.appendChild(div); }); }catch(e){ els.ordersList.innerHTML=`<p style="color:red">${e.message}</p>`; } }
+window.loadOrders=loadOrders;
+async function updateStatus(id,st){ const notes=st==='rejected'?prompt('Reject reason:'):prompt('Notes:'); if(st==='rejected'&&notes===null) return; if(!confirm(`Mark as ${st}?`)) return; await api('/api/admin/update-status',{method:'POST',body:JSON.stringify({orderId:id,status:st,admin_notes:notes||''})}); loadOrders(st==='rejected'?'pending':st, document.querySelector('.tab-btn.active')); }
+window.updateStatus=updateStatus;
+async function startGenerate(id){ if(!confirm('Start AI rendering?')) return; await api('/api/admin/generate',{method:'POST',body:JSON.stringify({orderId:id})}); alert('Generation started'); }
+window.startGenerate=startGenerate;
+(async()=>{ const a=await checkSession(); if(a){ showDashboard(); loadOrders('pending',document.querySelector('.tab-btn')); } else { showLogin(); } })();
