@@ -71,25 +71,35 @@ results/PASKO-XXXX/parol-magic.jpg</pre></div></div>
   <div id="loadingOverlay" class="overlay hidden"><h2 style="font-size:22px;font-weight:800">Rendering 5 Christmas Portraits</h2><p style="opacity:.8;font-size:13px">Server-side Meta Muse Image 1.0</p><div id="countdown" class="count">60</div><p style="font-size:12px;opacity:.8">Keep tab open - music playing (no 403)</p><div class="pbar"><div id="progressBar" class="pfill"></div></div><div class="tpls" id="templateProgress"><div id="tpl-parol-magic" class="tpl">Parol<br>Magic</div><div id="tpl-noche-buena" class="tpl">Noche<br>Buena</div><div id="tpl-snow-pinas" class="tpl">Snow<br>Pinas</div><div id="tpl-simbang-gabi" class="tpl">Simbang<br>Gabi</div><div id="tpl-family-belen" class="tpl">Family<br>Belen</div></div><p id="currentTemplate" style="margin-top:12px;color:var(--gold);font-weight:600;font-size:13px">Starting...</p><div style="margin-top:18px;display:flex;gap:10px;align-items:center;background:rgba(255,255,255,.1);padding:10px 16px;border-radius:999px"><span style="font-size:12px">Christmas Music (Web Audio)</span><button id="musicBtn" onclick="toggleMusic()" class="btn btn-gold" style="padding:6px 12px;font-size:12px">Pause</button></div><p style="font-size:11px;opacity:.6;margin-top:10px">Built-in Web Audio API - no external 403</p></div>
 </div>
 <script>
-let countdownInt=null,audioCtx=null,oscillators=[],musicPlaying=false;
+let countdownInt=null;let audioCtx=null;let oscillators=[];let musicPlaying=false;
 function getAudioCtx(){ if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
 function playChristmasJingle(){
   try{
     const ctx=getAudioCtx();
-    const notes=[261.63,329.63,392,523.25,392,329.63,261.63,329.63,392,440,392,329.63]; // C4 E4 G4 C5 etc Jingle-ish
+    const notes=[261.63,329.63,392,523.25,392,329.63];
     let t=ctx.currentTime;
-    notes.forEach((freq,i)=>{
-      const osc=ctx.createOscillator(); const gain=ctx.createGain();
-      osc.type='sine'; osc.frequency.value=freq;
+    for(let i=0;i<notes.length;i++){
+      const freq=notes[i];
+      const osc=ctx.createOscillator();
+      const gain=ctx.createGain();
+      osc.type="sine";
+      osc.frequency.value=freq;
       gain.gain.setValueAtTime(0, t);
       gain.gain.linearRampToValueAtTime(0.15, t+0.05);
       gain.gain.linearRampToValueAtTime(0, t+0.4);
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.start(t); osc.stop(t+0.45);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(t);
+      osc.stop(t+0.45);
       t+=0.35;
-    });
-    setTimeout(()=>{ if(musicPlaying) playChristmasJingle(); }, notes.length*0.35*1000+200);
-  }catch(e){ console.log('Web Audio blocked',e); }
+    }
+    if(musicPlaying){
+      setTimeout(function(){ if(musicPlaying) playChristmasJingle(); }, notes.length*350+200);
+    }
+  }catch(e){
+    console.log("Web Audio blocked", e);
+  }
+};
 }
 function startMusic(){ musicPlaying=true; playChristmasJingle(); const b=document.getElementById('musicBtn'); if(b) b.textContent='Pause'; }
 function stopMusic(){ musicPlaying=false; if(audioCtx){ try{ audioCtx.close(); audioCtx=null; }catch{} } const b=document.getElementById('musicBtn'); if(b) b.textContent='Play'; }
@@ -144,3 +154,6 @@ window.testAI=function(){ alert('Meta API muse-image-1.0 test - no CDN, Web Audi
 (async()=>{ const a=await checkSession(); if(a){ showDashboard(); loadOrders('pending'); loadStats(); } else { showLogin(); } })();
 </script>
 </body></html>
+
+
+
