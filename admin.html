@@ -5,43 +5,115 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Pasko Photo Magic - Admin</title>
 <style>
-body{font-family:Inter,system-ui,sans-serif;background:#f7f5f0;margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh}
-.login-wrap{max-width:400px;width:90%;background:white;padding:32px;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.1);text-align:center}
+body{font-family:Inter,system-ui,sans-serif;background:#f7f5f0;margin:0}
+.login-wrap{max-width:400px;width:90%;background:white;padding:32px;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.1);text-align:center;margin:80px auto}
 .login-wrap input{width:100%;padding:12px;border-radius:8px;border:1px solid #ddd;margin:12px 0;box-sizing:border-box}
-.btn{padding:12px 24px;border:none;border-radius:8px;cursor:pointer;font-weight:600;width:100%}
-.btn-login{background:#0d4f3c;color:white}
-.header{background:#0d4f3c;color:white;padding:16px 24px;display:flex;justify-content:space-between;align-items:center}
+.btn{padding:10px 18px;border:none;border-radius:8px;cursor:pointer;font-weight:600}
+.btn-login{background:#0d4f3c;color:white;width:100%;padding:12px}
+.btn-approve{background:#0d4f3c;color:white}.btn-reject{background:#dc3545;color:white}.btn-generate{background:#f5c542;color:#000;font-weight:700}
+.header{background:#0d4f3c;color:white;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
 .orders{max-width:1200px;margin:auto;padding:20px;display:grid;gap:16px}
-.order-card{background:white;border-radius:16px;padding:16px;display:flex;gap:16px;box-shadow:0 2px 12px rgba(0,0,0,.06)}
-.tab-btn{padding:10px 18px;border:none;border-radius:999px;background:white;cursor:pointer;margin:4px}
+.order-card{background:white;border-radius:16px;padding:16px;display:flex;gap:16px;box-shadow:0 2px 12px rgba(0,0,0,.06);align-items:flex-start}
+.tab-btn{padding:10px 18px;border:none;border-radius:999px;background:white;cursor:pointer;margin:4px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
 .tab-btn.active{background:#0d4f3c;color:white}
+.loading-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(13,79,60,.95);color:white;display:none;justify-content:center;align-items:center;z-index:100;flex-direction:column;text-align:center;padding:20px}
+.countdown{font-size:64px;font-weight:800;color:#f5c542;margin:20px 0}
+.progress-wrap{width:90%;max-width:400px;background:rgba(255,255,255,.2);border-radius:999px;height:12px;overflow:hidden;margin:20px auto}
+.progress-bar{height:100%;background:#f5c542;width:0%;transition:width .5s}
+.template-progress{display:flex;gap:8px;justify-content:center;margin:20px 0;flex-wrap:wrap}
+.tpl-dot{width:60px;height:60px;border-radius:12px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:10px;text-align:center;padding:4px}
+.tpl-dot.done{background:#f5c542;color:#000}.tpl-dot.active{background:white;color:#0d4f3c;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.music-control{margin-top:20px;background:rgba(255,255,255,.1);padding:12px 20px;border-radius:999px;display:flex;align-items:center;gap:12px}
 </style>
 </head>
 <body>
 <div id="loginScreen" class="login-wrap">
-  <h2>Pasko Admin</h2>
-  <p>Secure HttpOnly Login</p>
+  <h2>Pasko Admin</h2><p>Secure HttpOnly Login</p>
   <input id="adminKeyInput" type="password" placeholder="Enter admin password">
   <button class="btn btn-login" onclick="login()">Login</button>
-  <p style="font-size:11px;color:#999;margin-top:12px">Protected by HttpOnly secure session</p>
 </div>
+
 <div id="dashboard" style="display:none;width:100%;min-height:100vh;background:#f7f5f0">
-  <div class="header"><h3 style="margin:0">Pasko Photo Magic - Admin Dashboard</h3><button onclick="logout()" style="background:white;color:#0d4f3c;border:none;padding:8px 16px;border-radius:8px;cursor:pointer">Logout</button></div>
+  <div class="header"><h3 style="margin:0">Pasko Photo Magic - Admin</h3><button onclick="logout()" style="background:white;color:#0d4f3c;border:none;padding:8px 16px;border-radius:8px;cursor:pointer">Logout</button></div>
   <div style="padding:20px;max-width:1200px;margin:auto">
     <div id="statsBox" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px"></div>
     <div><button class="tab-btn active" onclick="loadOrders('pending',this)">Pending</button><button class="tab-btn" onclick="loadOrders('approved',this)">Approved</button><button class="tab-btn" onclick="loadOrders('completed',this)">Completed</button><button class="tab-btn" onclick="loadOrders('',this)">All</button></div>
     <div class="orders" id="ordersList"><p>Loading...</p></div>
   </div>
 </div>
+
+<div id="loadingOverlay" class="loading-overlay">
+  <h2 style="margin:0">Rendering 5 Christmas Portraits</h2>
+  <p>Server-side AI with Meta Muse Image 1.0</p>
+  <div class="countdown" id="countdown">60</div>
+  <p>seconds remaining - Please keep this tab open</p>
+  <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+  <div class="template-progress" id="templateProgress">
+    <div class="tpl-dot" id="tpl-parol-magic">Parol<br>Magic</div>
+    <div class="tpl-dot" id="tpl-noche-buena">Noche<br>Buena</div>
+    <div class="tpl-dot" id="tpl-snow-pinas">Snow<br>Pinas</div>
+    <div class="tpl-dot" id="tpl-simbang-gabi">Simbang<br>Gabi</div>
+    <div class="tpl-dot" id="tpl-family-belen">Family<br>Belen</div>
+  </div>
+  <p id="currentTemplate" style="color:#f5c542;font-weight:600">Starting...</p>
+  <div class="music-control">
+    <span>Playing Christmas Music</span>
+    <button id="musicBtn" onclick="toggleMusic()" style="background:#f5c542;border:none;border-radius:999px;padding:8px 16px;cursor:pointer">Pause</button>
+  </div>
+  <audio id="bgMusic" loop>
+    <source src="https://cdn.pixabay.com/download/audio/2022/12/01/audio_8a7f8c1e0e.mp3?filename=christmas-magic-122145.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
 <script>
 const els={loginScreen:document.getElementById('loginScreen'),dashboard:document.getElementById('dashboard'),loginInput:document.getElementById('adminKeyInput'),ordersList:document.getElementById('ordersList')};
+let countdownInterval=null;
+let musicPlaying=false;
 async function api(p,o={}){ const r=await fetch(p,{...o,headers:{'Content-Type':'application/json',...(o.headers||{})},credentials:'include'}); if(r.status===401){ showLogin(); throw new Error('Unauthorized'); } const j=await r.json().catch(()=>({})); if(!r.ok) throw new Error(j.error||'Failed'); return j; }
 function showLogin(){ els.loginScreen.style.display='block'; els.dashboard.style.display='none'; }
 function showDashboard(){ els.loginScreen.style.display='none'; els.dashboard.style.display='block'; }
 async function checkSession(){ try{ const r=await fetch('/api/admin/session',{credentials:'include'}); const j=await r.json(); return j.authenticated; }catch{ return false; } }
-async function login(){ const pwd=els.loginInput?.value?.trim(); if(!pwd) return alert('Enter admin key'); try{ await api('/api/admin/login',{method:'POST',body:JSON.stringify({password:pwd})}); location.reload(); }catch(e){ alert('Maling password!'); } }
+async function login(){ const pwd=els.loginInput?.value?.trim(); if(!pwd) return alert('Enter admin key'); try{ await api('/api/admin/login',{method:'POST',body:JSON.stringify({password:pwd})}); location.reload(); }catch{ alert('Maling password!'); } }
 async function logout(){ await fetch('/api/admin/logout',{method:'POST',credentials:'include'}); location.reload(); }
 window.login=login; window.logout=logout;
+
+function showLoading(){
+  document.getElementById('loadingOverlay').style.display='flex';
+  let seconds=60;
+  document.getElementById('countdown').textContent=seconds;
+  document.getElementById('progressBar').style.width='0%';
+  document.querySelectorAll('.tpl-dot').forEach(d=>{d.classList.remove('done','active');});
+  const music=document.getElementById('bgMusic');
+  music.play().then(()=>{musicPlaying=true; document.getElementById('musicBtn').textContent='Pause';}).catch(()=>{});
+  countdownInterval=setInterval(()=>{
+    seconds--;
+    document.getElementById('countdown').textContent=seconds;
+    const progress=((60-seconds)/60)*100;
+    document.getElementById('progressBar').style.width=progress+'%';
+    if(seconds<=0){ clearInterval(countdownInterval); document.getElementById('countdown').textContent='Almost done...'; }
+  },1000);
+}
+function hideLoading(){
+  document.getElementById('loadingOverlay').style.display='none';
+  if(countdownInterval) clearInterval(countdownInterval);
+  const music=document.getElementById('bgMusic');
+  music.pause();
+  musicPlaying=false;
+}
+function updateTemplateProgress(templateId, status){
+  const el=document.getElementById('tpl-'+templateId);
+  if(!el) return;
+  if(status==='active'){ el.classList.add('active'); document.getElementById('currentTemplate').textContent='Generating: '+templateId.replace('-',' '); }
+  else if(status==='done'){ el.classList.remove('active'); el.classList.add('done'); }
+}
+window.toggleMusic=function(){
+  const music=document.getElementById('bgMusic');
+  const btn=document.getElementById('musicBtn');
+  if(musicPlaying){ music.pause(); btn.textContent='Play Music'; musicPlaying=false; }
+  else{ music.play(); btn.textContent='Pause'; musicPlaying=true; }
+}
+
 async function loadOrders(status,btn){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); if(btn) btn.classList.add('active');
   els.ordersList.innerHTML='<p>Loading...</p>';
@@ -53,7 +125,8 @@ async function loadOrders(status,btn){
     orders.forEach(o=>{
       const div=document.createElement('div'); div.className='order-card';
       const esc=s=>(s||'').toString().replace(/</g,'&lt;');
-      div.innerHTML=`<div style="flex:1"><p><b>${esc(o.order_code)}</b> - ${esc(o.customer_name)} (${esc(o.contact_info)})</p><p>${esc(o.package)} - ${esc(o.status).toUpperCase()}</p><p style="font-size:12px">${new Date(o.created_at).toLocaleString()}</p></div><div><button class="tab-btn" style="background:#0d4f3c;color:white" onclick="updateStatus('${o.id}','approved')">Approve</button><button class="tab-btn" style="background:#dc3545;color:white" onclick="updateStatus('${o.id}','rejected')">Reject</button></div>`;
+      const isP149=o.package==='P149';
+      div.innerHTML=`<div style="flex:1"><p><b>${esc(o.order_code)}</b> - ${esc(o.customer_name)} (${esc(o.contact_info)})</p><p><span style="background:${isP149?'#f5c542':'#e3e3e3'};padding:2px 8px;border-radius:999px;font-size:12px">${esc(o.package)}</span> - ${esc(o.status).toUpperCase()} ${o.render_status?`(${esc(o.render_status)})`:''}</p><p style="font-size:12px">${new Date(o.created_at).toLocaleString()}</p></div><div style="display:flex;flex-direction:column;gap:8px">${o.status==='pending'?`<button class="btn btn-approve" onclick="updateStatus('${o.id}','approved')">Approve</button>`:''}${o.status==='approved'?`<button class="btn btn-generate" onclick="startGenerate('${o.id}')">Generate 5 Portraits</button>`:''}${o.status==='completed'?`<button class="btn btn-generate" onclick="startGenerate('${o.id}')">Retry Render</button>`:''}<button class="btn btn-reject" onclick="updateStatus('${o.id}','rejected')">Reject</button></div>`;
       els.ordersList.appendChild(div);
     });
   }catch(e){ els.ordersList.innerHTML=`<p style="color:red">${e.message}</p>`; }
@@ -61,6 +134,40 @@ async function loadOrders(status,btn){
 window.loadOrders=loadOrders;
 async function updateStatus(id,st){ if(!confirm(`Mark as ${st}?`)) return; try{ await api('/api/admin/update-status',{method:'POST',body:JSON.stringify({orderId:id,status:st})}); loadOrders('pending',document.querySelector('.tab-btn.active')); }catch(e){ alert(e.message); } }
 window.updateStatus=updateStatus;
+async function startGenerate(id){
+  if(!confirm('Start server-side AI rendering 5 Christmas templates?\nThis will take 60 seconds with music')) return;
+  showLoading();
+  try{
+    // Simulate template progress while waiting for real API
+    const templates=['parol-magic','noche-buena','snow-pinas','simbang-gabi','family-belen'];
+    let currentIdx=0;
+    const progressInterval=setInterval(()=>{
+      if(currentIdx<templates.length){
+        if(currentIdx>0) updateTemplateProgress(templates[currentIdx-1],'done');
+        updateTemplateProgress(templates[currentIdx],'active');
+        currentIdx++;
+      }
+    },12000); // 12 sec per template = 60 sec total
+
+    const r=await api('/api/admin/generate',{method:'POST',body:JSON.stringify({orderId:id})});
+
+    clearInterval(progressInterval);
+    templates.forEach(t=>updateTemplateProgress(t,'done'));
+    document.getElementById('progressBar').style.width='100%';
+    document.getElementById('countdown').textContent='Done!';
+
+    setTimeout(()=>{
+      hideLoading();
+      alert('Generated '+(r.generated||5)+'/5 portraits successfully!');
+      loadOrders('completed',document.querySelectorAll('.tab-btn')[2]);
+    },1500);
+
+  }catch(e){
+    hideLoading();
+    alert('Generate failed: '+e.message);
+  }
+}
+window.startGenerate=startGenerate;
 (async()=>{ const a=await checkSession(); if(a){ showDashboard(); loadOrders('pending',document.querySelector('.tab-btn')); } else { showLogin(); } })();
 </script>
 </body>
