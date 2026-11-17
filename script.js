@@ -227,17 +227,21 @@ async function submitOrder() {
   if (!photoFile) { if (errEl) errEl.textContent = 'Please upload a photo first.'; return; }
 
   if (btn) { btn.disabled = true; btn.textContent = 'Uploading…'; }
-
+  
   try {
-    // 1. Upload photo to Supabase Storage
-    const photoPath = `uploads/${crypto.randomUUID()}-${photoFile.name}`;
+    // 1. Upload photo to Supabase Storage (Bucket: uploads)
+    const cleanPhotoName = photoFile.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+    const photoPath = `${crypto.randomUUID()}-${cleanPhotoName}`;
+    
     const { error: upErr } = await sb.storage.from('uploads').upload(photoPath, photoFile);
     if (upErr) throw upErr;
 
-    // 2. Upload proof
+    // 2. Upload proof (if provided)
     let proofPath = null;
     if (proofFile) {
-      proofPath = `uploads/${crypto.randomUUID()}-${proofFile.name}`;
+      const cleanProofName = proofFile.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+      proofPath = `${crypto.randomUUID()}-${cleanProofName}`;
+      
       const { error: pErr } = await sb.storage.from('uploads').upload(proofPath, proofFile);
       if (pErr) throw pErr;
     }
@@ -286,43 +290,92 @@ async function submitOrder() {
 // =====================================
 (function () {
   const el = document.getElementById('orderSummary');
-  if (!el) return;
+  if (!el) return; // Only runs on success.html
   
   const params = new URLSearchParams(location.search);
   const code = params.get('code');
   const token = params.get('token');
   
-  if (!code || !token) { el.textContent = 'Missing order details.'; return; }
-  if (!sb) { el.textContent = 'Config missing.'; return; }
+  if (!code || !token) { el.innerHTML = '<p>Missing order details.</p>'; return; }
+  if (!sb) { el.innerHTML = '<p>Config missing.</p>'; return; }
 
+  // Generate the Pre-Link
   const preLink = `${window.location.origin}/delivery.html?code=${code}&token=${token}`;
 
+  // Render the initial UI
   el.innerHTML = `
-    <div style="background:#edf6ef; padding:20px; border-radius:12px; text-align:center; margin-bottom:20px;">
-      <h3 style="margin-top:0;">📌 Save this link!</h3>
-      <p>When your photos are ready, open this link to automatically download them.</p>
-      <a href="${preLink}" style="display:inline-block; background:#075b3d; color:white; padding:10px 20px; border-radius:20px; text-decoration:none; font-weight:bold; margin-top:10px;">Your Delivery Link</a>
-    </div>
+    <div style="font-size: 50px; margin-bottom: 10px;">🎄</div>
+    <h2 style="font-family: var(--serif); color: var(--green); margin-bottom: 5px;">Salamat!</h2>
+    <p style="color: var(--muted); margin-bottom: 20px;">Your order <b>#${code}</b> has been received.</p>
     
-    <b>Order code:</b> ${code}<br>
-    <b>Status:</b> <span class="status-badge" id="statusText">⏳ Waiting for payment verification</span>
+    <div class="status-badge" id="statusBadge">⏳ Waiting for payment verification</div>
+
+    <div class="pre-link-box active" id="preLinkBox">
+      <h3 style="margin-top: 0; color: var(--green); font-size: 18px;">🔗 Your Magic Link</h3>
+      <p style="font-size: 13px; margin-bottom: 15px;">Save this link! When Admin approves your order, it will auto-download your photos.</p>
+      <input type="text" class="link-input" id="preLinkInput" value="${preLink}" readonly>
+      <button class="btn-copy" id="copyBtn" onclick="copyPreLink()">📋 Copy My Link</button>
+    </div>
+
+    <div class="steps-list">
+      <b>What happens next?</b><br>
+      1. We verify your GCash payment.<br>
+      2. Admin generates your 5 Christmas photos.<br>
+      3. Open your saved link to download!
+    </div>
+
+    <p style="margin-top: 20px; font-size: 12px; color: #999;">
+      Need help? Send us a message on Facebook.
+    </p>
   `;
 
   // Poll to update the status text
-  setInterval(async () => {
+  async function checkStatus() {
     const { data } = await sb.from('orders').select('status').eq('order_code', code).single();
-    if (data) {
-      const statusLabel = {
-        pending: '⏳ Waiting for payment verification',
-        approved: '✅ Payment approved — admin is preparing your images',
-        completed: '🎁 Ready! Click your Delivery Link above.',
-        rejected: '❌ Order rejected — contact us',
-      }[data.status] || data.status;
-      
-      document.getElementById('statusText').innerText = statusLabel;
+    if (!data) return;
+
+    const badge = document.getElementById('statusBadge');
+    if (!badge) return;
+
+    if (data.status === 'pending') {
+      badge.className = 'status-badge';
+      badge.innerText = '⏳ Waiting for payment verification';
+    } else if (data.status === 'approved') {
+      badge.className = 'status-badge approved';
+      badge.innerText = '✅ Payment approved — Admin is creating your photos';
+    } else if (data.status === 'completed') {
+      badge.className = 'status-badge completed';
+      badge.innerText = '🎁 Ready! Click your Magic Link above to download.';
+    } else if (data.status === 'rejected') {
+      badge.className = 'status-badge rejected';
+      badge.innerText = '❌ Order rejected — Please contact us.';
     }
-  }, 10000);
+  }
+
+  // Initial check and set interval
+  checkStatus();
+  setInterval(checkStatus, 10000);
 })();
+
+// Copy to clipboard function (Global so the onclick works)
+window.copyPreLink = function() {
+  const input = document.getElementById('preLinkInput');
+  const btn = document.getElementById('copyBtn');
+  
+  input.select();
+  input.setSelectionRange(0, 99999); // For mobile
+  
+  navigator.clipboard.writeText(input.value).then(() => {
+    btn.innerText = '✅ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.innerText = '📋 Copy My Link';
+      btn.classList.remove('copied');
+    }, 3000);
+  }).catch(() => {
+    alert('Please manually copy the link above.');
+  });
+};
 
 // =====================================
 // DELIVERY PAGE — Auto-Download Polling
