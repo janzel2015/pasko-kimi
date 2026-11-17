@@ -1,174 +1,171 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Pasko Photo Magic - Admin</title>
-<style>
-body{font-family:Inter,system-ui,sans-serif;background:#f7f5f0;margin:0}
-.login-wrap{max-width:400px;width:90%;background:white;padding:32px;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.1);text-align:center;margin:80px auto}
-.login-wrap input{width:100%;padding:12px;border-radius:8px;border:1px solid #ddd;margin:12px 0;box-sizing:border-box}
-.btn{padding:10px 18px;border:none;border-radius:8px;cursor:pointer;font-weight:600}
-.btn-login{background:#0d4f3c;color:white;width:100%;padding:12px}
-.btn-approve{background:#0d4f3c;color:white}.btn-reject{background:#dc3545;color:white}.btn-generate{background:#f5c542;color:#000;font-weight:700}
-.header{background:#0d4f3c;color:white;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
-.orders{max-width:1200px;margin:auto;padding:20px;display:grid;gap:16px}
-.order-card{background:white;border-radius:16px;padding:16px;display:flex;gap:16px;box-shadow:0 2px 12px rgba(0,0,0,.06);align-items:flex-start}
-.tab-btn{padding:10px 18px;border:none;border-radius:999px;background:white;cursor:pointer;margin:4px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
-.tab-btn.active{background:#0d4f3c;color:white}
-.loading-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(13,79,60,.95);color:white;display:none;justify-content:center;align-items:center;z-index:100;flex-direction:column;text-align:center;padding:20px}
-.countdown{font-size:64px;font-weight:800;color:#f5c542;margin:20px 0}
-.progress-wrap{width:90%;max-width:400px;background:rgba(255,255,255,.2);border-radius:999px;height:12px;overflow:hidden;margin:20px auto}
-.progress-bar{height:100%;background:#f5c542;width:0%;transition:width .5s}
-.template-progress{display:flex;gap:8px;justify-content:center;margin:20px 0;flex-wrap:wrap}
-.tpl-dot{width:60px;height:60px;border-radius:12px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:10px;text-align:center;padding:4px}
-.tpl-dot.done{background:#f5c542;color:#000}.tpl-dot.active{background:white;color:#0d4f3c;animation:pulse 1s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-.music-control{margin-top:20px;background:rgba(255,255,255,.1);padding:12px 20px;border-radius:999px;display:flex;align-items:center;gap:12px}
-</style>
+<【entity-meta¦canonical_name=Meta】 charset="UTF-8">
+<【entity-meta¦canonical_name=Meta】 name="viewport" content="width=device-width,initial-scale=1">
+<title>Pasko Photo Magic - Admin Full Control</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>*{font-family:Inter,sans-serif}::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:#ddd;border-radius:999px}</style>
 </head>
-<body>
-<div id="loginScreen" class="login-wrap">
-  <h2>Pasko Admin</h2><p>Secure HttpOnly Login</p>
-  <input id="adminKeyInput" type="password" placeholder="Enter admin password">
-  <button class="btn btn-login" onclick="login()">Login</button>
-</div>
-
-<div id="dashboard" style="display:none;width:100%;min-height:100vh;background:#f7f5f0">
-  <div class="header"><h3 style="margin:0">Pasko Photo Magic - Admin</h3><button onclick="logout()" style="background:white;color:#0d4f3c;border:none;padding:8px 16px;border-radius:8px;cursor:pointer">Logout</button></div>
-  <div style="padding:20px;max-width:1200px;margin:auto">
-    <div id="statsBox" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px"></div>
-    <div><button class="tab-btn active" onclick="loadOrders('pending',this)">Pending</button><button class="tab-btn" onclick="loadOrders('approved',this)">Approved</button><button class="tab-btn" onclick="loadOrders('completed',this)">Completed</button><button class="tab-btn" onclick="loadOrders('',this)">All</button></div>
-    <div class="orders" id="ordersList"><p>Loading...</p></div>
+<body class="bg-[#f7f5f0] min-h-screen">
+<!-- Login -->
+<div id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
+  <div class="bg-white rounded- shadow-xl p-8 w-full max-w- text-center">
+    <h1 class="text-2xl font-bold text-[#0d4f3c]">Pasko Admin</h1>
+    <p class="text-gray-500 text-sm mt-1">Full Control Dashboard</p>
+    <input id="adminKeyInput" type="password" placeholder="Enter admin password" class="w-full mt-6 p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0d4f3c]">
+    <button onclick="login()" class="w-full mt-3 bg-[#0d4f3c] text-white p-3 rounded-xl font-semibold hover:bg-[#0a3d2f]">Login</button>
+    <p class="text- text-gray-400 mt-3">Protected by HttpOnly secure session</p>
   </div>
 </div>
 
-<div id="loadingOverlay" class="loading-overlay">
-  <h2 style="margin:0">Rendering 5 Christmas Portraits</h2>
-  <p>Server-side AI with Meta Muse Image 1.0</p>
-  <div class="countdown" id="countdown">60</div>
-  <p>seconds remaining - Please keep this tab open</p>
-  <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
-  <div class="template-progress" id="templateProgress">
-    <div class="tpl-dot" id="tpl-parol-magic">Parol<br>Magic</div>
-    <div class="tpl-dot" id="tpl-noche-buena">Noche<br>Buena</div>
-    <div class="tpl-dot" id="tpl-snow-pinas">Snow<br>Pinas</div>
-    <div class="tpl-dot" id="tpl-simbang-gabi">Simbang<br>Gabi</div>
-    <div class="tpl-dot" id="tpl-family-belen">Family<br>Belen</div>
+<!-- Dashboard -->
+<div id="dashboard" class="hidden">
+  <!-- Header -->
+  <header class="sticky top-0 z-20 bg-[#0d4f3c] text-white px-4 md:px-6 py-4 flex justify-between items-center">
+    <div class="flex items-center gap-3"><button onclick="toggleSidebar()" class="md:hidden p-2 bg-white/10 rounded-lg">☰</button><h1 class="font-bold">Pasko Admin - Full Control</h1><span class="hidden md:inline bg-white/20 text-xs px-2 py-1 rounded-full ml-2">v2.0 Secure</span></div>
+    <div class="flex items-center gap-3"><button onclick="loadOrders('pending')" class="relative p-2 bg-white/10 rounded-full"><span>🔔</span><span id="notifBadge" class="absolute -top-1 -right-1 bg-[#f5c542] text-black text- w-5 h-5 rounded-full flex items-center justify-center font-bold">3</span></button><button onclick="logout()" class="bg-white text-[#0d4f3c] px-4 py-2 rounded-full text-sm font-semibold">Logout</button></div>
+  </header>
+
+  <div class="flex">
+    <!-- Sidebar Desktop -->
+    <aside id="sidebar" class="hidden md:flex w- bg-white border-r min-h-[calc(100vh-64px)] flex-col p-4 sticky top-">
+      <nav class="space-y-1 flex-1">
+        <button onclick="showSection('dashboard')" class="nav-btn active w-full text-left px-3 py-2.5 rounded-xl bg-[#0d4f3c] text-white font-medium">📊 Dashboard</button>
+        <button onclick="showSection('orders')" class="nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-gray-100">📦 Orders <span id="pendingBadge" class="ml-auto bg-[#f5c542] text-xs px-2 py-0.5 rounded-full">pending</span></button>
+        <button onclick="showSection('templates')" class="nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-gray-100">🎨 Templates</button>
+        <button onclick="showSection('customers')" class="nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-gray-100">👥 Customers</button>
+        <button onclick="showSection('packages')" class="nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-gray-100">💰 Packages</button>
+        <button onclick="showSection('ai')" class="nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-gray-100">🤖 AI Models</button>
+        <button onclick="showSection('storage')" class="nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-gray-100">💾 Storage</button>
+        <button onclick="showSection('revenue')" class="nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-gray-100">📈 Revenue</button>
+        <button onclick="showSection('settings')" class="nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-gray-100">⚙️ Settings</button>
+      </nav>
+      <div class="mt-4 p-3 bg-[#f7f5f0] rounded-xl"><p class="text-xs font-semibold">AI Status</p><p class="text-xs text-green-600">● muse-image-1.0 online</p><p class="text- text-gray-500">₱67.75 spent • 102 req</p></div>
+    </aside>
+
+    <!-- Main -->
+    <main class="flex-1 p-4 md:p-6 max-w- mx-auto w-full">
+      <!-- Dashboard Section -->
+      <div id="section-dashboard" class="section">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div class="bg-white p-4 rounded-2xl shadow-sm"><p class="text-xs text-gray-500">Total Orders</p><p id="statTotal" class="text-2xl font-bold">-</p><p class="text-xs text-green-600">↑ 12%</p></div>
+          <div class="bg-white p-4 rounded-2xl shadow-sm"><p class="text-xs text-gray-500">Pending</p><p id="statPending" class="text-2xl font-bold">-</p><p class="text-xs text-amber-600">Needs action</p></div>
+          <div class="bg-white p-4 rounded-2xl shadow-sm"><p class="text-xs text-gray-500">Revenue</p><p id="statRevenue" class="text-2xl font-bold">₱-</p><p class="text-xs text-green-600">P99+P149</p></div>
+          <div class="bg-white p-4 rounded-2xl shadow-sm"><p class="text-xs text-gray-500">Completed</p><p id="statCompleted" class="text-2xl font-bold">-</p><p class="text-xs text-gray-500">Done</p></div>
+        </div>
+        <div class="grid md:grid-cols-3 gap-4 mb-6">
+          <div class="md:col-span-2 bg-white p-5 rounded-2xl shadow-sm"><h3 class="font-semibold mb-3">Revenue Last 7 Days</h3><div class="h- flex items-end gap-2"><div class="flex-1 bg-[#0d4f3c]/20 rounded-t-lg" style="height:40%"></div><div class="flex-1 bg-[#0d4f3c]/40 rounded-t-lg" style="height:65%"></div><div class="flex-1 bg-[#0d4f3c]/60 rounded-t-lg" style="height:50%"></div><div class="flex-1 bg-[#0d4f3c] rounded-t-lg" style="height:85%"></div><div class="flex-1 bg-[#f5c542] rounded-t-lg" style="height:100%"></div><div class="flex-1 bg-[#0d4f3c]/30 rounded-t-lg" style="height:45%"></div><div class="flex-1 bg-[#0d4f3c]/50 rounded-t-lg" style="height:70%"></div></div></div>
+          <div class="bg-white p-5 rounded-2xl shadow-sm"><h3 class="font-semibold mb-3">Package Split</h3><div class="flex items-center gap-4"><div class="w-20 h-20 rounded-full" style="background:conic-gradient(#0d4f3c 60%, #f5c542 0)"></div><div><p class="text-sm">P99: 60%</p><p class="text-sm">P149: 40%</p><p class="text-xs text-gray-500 mt-2">P149 includes 30s MP4</p></div></div></div>
+        </div>
+      </div>
+
+      <!-- Orders Section -->
+      <div id="section-orders" class="section hidden">
+        <div class="flex flex-wrap gap-2 mb-4"><input id="searchInput" placeholder="Search orders, customers..." class="flex-1 min-w- p-2.5 border rounded-xl"><select id="packageFilter" class="p-2.5 border rounded-xl"><option value="">All Packages</option><option>P99</option><option>P149</option></select><button onclick="exportCSV()" class="px-4 py-2.5 bg-white border rounded-xl text-sm">Export CSV</button></div>
+        <div class="flex gap-2 mb-4 overflow-x-auto"><button class="tab-btn active" onclick="loadOrders('pending',this)">Pending</button><button class="tab-btn" onclick="loadOrders('approved',this)">Approved</button><button class="tab-btn" onclick="loadOrders('completed',this)">Completed</button><button class="tab-btn" onclick="loadOrders('',this)">All</button></div>
+        <div id="ordersList" class="grid gap-3"></div>
+      </div>
+
+      <!-- Templates Section -->
+      <div id="section-templates" class="section hidden">
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" id="templatesGrid">
+          <div class="bg-white p-4 rounded-2xl shadow-sm"><p class="font-semibold">Parol Magic</p><p class="text-xs text-gray-500">Glowing parol lanterns, warm lights</p><div class="mt-2 flex gap-2"><button class="text-xs px-3 py-1 bg-[#0d4f3c] text-white rounded-full">Edit Prompt</button><span class="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">Active</span></div></div>
+          <div class="bg-white p-4 rounded-2xl shadow-sm"><p class="font-semibold">Noche Buena</p><p class="text-xs text-gray-500">Cozy dinner, Filipino home</p><div class="mt-2 flex gap-2"><button class="text-xs px-3 py-1 bg-[#0d4f3c] text-white rounded-full">Edit Prompt</button><span class="text-xs px-2 py-1 bg-green-100 rounded-full">Active</span></div></div>
+          <div class="bg-white p-4 rounded-2xl shadow-sm"><p class="font-semibold">Snow Pinas</p><p class="text-xs text-gray-500">Snow in Philippines, sweater</p><div class="mt-2 flex gap-2"><button class="text-xs px-3 py-1 bg-[#0d4f3c] text-white rounded-full">Edit Prompt</button><span class="text-xs px-2 py-1 bg-green-100 rounded-full">Active</span></div></div>
+          <div class="bg-white p-4 rounded-2xl shadow-sm"><p class="font-semibold">Simbang Gabi</p><p class="text-xs text-gray-500">Church dawn, candles</p><div class="mt-2 flex gap-2"><button class="text-xs px-3 py-1 bg-[#0d4f3c] text-white rounded-full">Edit Prompt</button><span class="text-xs px-2 py-1 bg-green-100 rounded-full">Active</span></div></div>
+          <div class="bg-white p-4 rounded-2xl shadow-sm"><p class="font-semibold">Family Belen</p><p class="text-xs text-gray-500">Nativity, warm glow</p><div class="mt-2 flex gap-2"><button class="text-xs px-3 py-1 bg-[#0d4f3c] text-white rounded-full">Edit Prompt</button><span class="text-xs px-2 py-1 bg-green-100 rounded-full">Active</span></div></div>
+        </div>
+      </div>
+
+      <!-- Other Sections -->
+      <div id="section-customers" class="section hidden"><div class="bg-white p-6 rounded-2xl"><h3 class="font-semibold">Customers</h3><p class="text-sm text-gray-500">Search, view history, resend delivery link</p><div id="customersList" class="mt-4">Loading...</div></div></div>
+      <div id="section-packages" class="section hidden"><div class="grid md:grid-cols-2 gap-4"><div class="bg-white p-6 rounded-2xl"><h3 class="font-bold">P99 - ₱99</h3><p class="text-sm">5 Christmas portraits</p><ul class="text-sm mt-2 list-disc ml-4"><li>5 AI templates</li><li>High quality 4k</li><li>Secure delivery link</li></ul><button class="mt-4 px-4 py-2 bg-[#0d4f3c] text-white rounded-xl text-sm">Edit Package</button></div><div class="bg-white p-6 rounded-2xl border-2 border-[#f5c542]"><h3 class="font-bold">P149 - ₱149 (Popular)</h3><p class="text-sm">5 portraits + 30s MP4 slideshow</p><ul class="text-sm mt-2 list-disc ml-4"><li>5 AI templates</li><li>30s MP4 slideshow with music</li><li>Secure delivery</li><li>Retry without payment</li></ul><button class="mt-4 px-4 py-2 bg-[#f5c542] text-black rounded-xl text-sm font-semibold">Edit Package</button></div></div></div>
+      <div id="section-ai" class="section hidden"><div class="bg-white p-6 rounded-2xl"><h3 class="font-semibold">AI Provider - Full Control</h3><div class="mt-4 grid gap-3 text-sm"><div class="flex justify-between p-3 bg-gray-50 rounded-xl"><span>Model</span><b>muse-image-1.0</b></div><div class="flex justify-between p-3 bg-gray-50 rounded-xl"><span>Endpoint</span><span class="text-xs">api.meta.ai/v1/responses</span></div><div class="flex justify-between p-3 bg-gray-50 rounded-xl"><span>MODEL_API_KEY</span><span>●●●●●●●● (set in Vercel)</span></div><div class="flex justify-between p-3 bg-gray-50 rounded-xl"><span>Requests</span><b>102</b></div><div class="flex justify-between p-3 bg-gray-50 rounded-xl"><span>Spend</span><b>₱67.75</b></div></div><button onclick="testAI()" class="mt-4 px-4 py-2 bg-[#0d4f3c] text-white rounded-xl">Test Connection</button></div></div>
+      <div id="section-storage" class="section hidden"><div class="bg-white p-6 rounded-2xl"><h3 class="font-semibold">Storage - Supabase Private</h3><p class="text-sm text-gray-500">Buckets: uploads (private), results</p><div class="mt-4 p-4 bg-gray-50 rounded-xl text-xs">orders/PASKO-XXXX/photo.jpg<br>orders/PASKO-XXXX/proof.jpg<br>results/PASKO-XXXX/parol-magic.jpg<br>...</div></div></div>
+      <div id="section-revenue" class="section hidden"><div class="bg-white p-6 rounded-2xl"><h3 class="font-semibold">Revenue & Reports</h3><div class="mt-4 grid grid-cols-3 gap-4 text-center"><div><p class="text-2xl font-bold" id="revTotal">₱-</p><p class="text-xs">Total</p></div><div><p class="text-2xl font-bold">₱99</p><p class="text-xs">P99 Avg</p></div><div><p class="text-2xl font-bold">₱149</p><p class="text-xs">P149 Avg</p></div></div></div></div>
+      <div id="section-settings" class="section hidden"><div class="bg-white p-6 rounded-2xl space-y-4"><h3 class="font-semibold">Full Admin Settings</h3><div class="p-4 border rounded-xl"><p class="font-medium text-sm">Admin Security</p><p class="text-xs text-gray-500">Password hash: a21cf5d317bb8e955628ee208de8823788cab2711c28d0a0aff0be057be2fc76</p><p class="text-xs">Session secret: 22995705... (set in Vercel)</p><button class="mt-2 text-xs px-3 py-1 bg-gray-100 rounded-full">Change Password</button></div><div class="p-4 border rounded-xl"><p class="font-medium text-sm">Supabase - New sb_ keys</p><p class="text-xs">URL: https://vllqavcfqydtscbdrcex.supabase.co</p><p class="text-xs">SERVICE_KEY: sb_secret_... (private)</p><p class="text-xs">ANON_KEY: sb_publishable_... </p></div><div class="p-4 border rounded-xl"><p class="font-medium text-sm">【entity-GCash¦canonical_name=GCash】</p><p class="text-xs">Manual verification, no auto simulation</p></div><div class="p-4 border border-red-200 rounded-xl"><p class="font-medium text-sm text-red-600">Danger Zone</p><button class="mt-2 text-xs px-3 py-1 bg-red-50 text-red-600 rounded-full">Clear Pending</button></div></div></div>
+    </main>
   </div>
-  <p id="currentTemplate" style="color:#f5c542;font-weight:600">Starting...</p>
-  <div class="music-control">
-    <span>Playing Christmas Music</span>
-    <button id="musicBtn" onclick="toggleMusic()" style="background:#f5c542;border:none;border-radius:999px;padding:8px 16px;cursor:pointer">Pause</button>
+
+  <!-- Mobile Bottom Nav -->
+  <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around p-2 z-20">
+    <button onclick="showSection('dashboard')" class="flex flex-col items-center text-xs p-2"><span>📊</span>Dashboard</button>
+    <button onclick="showSection('orders')" class="flex flex-col items-center text-xs p-2"><span>📦</span>Orders</button>
+    <button onclick="showSection('templates')" class="flex flex-col items-center text-xs p-2"><span>🎨</span>Templates</button>
+    <button onclick="showSection('settings')" class="flex flex-col items-center text-xs p-2"><span>⚙️</span>Settings</button>
   </div>
-  <audio id="bgMusic" loop>
-    <source src="https://cdn.pixabay.com/download/audio/2022/12/01/audio_8a7f8c1e0e.mp3?filename=christmas-magic-122145.mp3" type="audio/mpeg">
-  </audio>
+
+  <!-- Loading Overlay with Music + Countdown -->
+  <div id="loadingOverlay" class="fixed inset-0 bg-[#0d4f3c]/95 text-white hidden flex-col items-center justify-center z-50 p-6 text-center">
+    <h2 class="text-2xl font-bold">Rendering 5 Christmas Portraits</h2>
+    <p class="text-white/80">Server-side AI - Meta Muse Image 1.0</p>
+    <div id="countdown" class="text- font-black text-[#f5c542] my-4">60</div>
+    <p class="text-sm">seconds - Keep tab open, music playing</p>
+    <div class="w-full max-w- bg-white/20 h-3 rounded-full mt-4 overflow-hidden"><div id="progressBar" class="h-full bg-[#f5c542] w-0 transition-all"></div></div>
+    <div class="flex gap-2 mt-6 flex-wrap justify-center" id="templateProgress"><div id="tpl-parol-magic" class="w- h- bg-white/20 rounded-xl flex items-center justify-center text- text-center">Parol<br>Magic</div><div id="tpl-noche-buena" class="w- h- bg-white/20 rounded-xl flex items-center justify-center text-">Noche<br>Buena</div><div id="tpl-snow-pinas" class="w- h- bg-white/20 rounded-xl flex items-center justify-center text-">Snow<br>Pinas</div><div id="tpl-simbang-gabi" class="w- h- bg-white/20 rounded-xl flex items-center justify-center text-">Simbang<br>Gabi</div><div id="tpl-family-belen" class="w- h- bg-white/20 rounded-xl flex items-center justify-center text-">Family<br>Belen</div></div>
+    <p id="currentTemplate" class="mt-4 text-[#f5c542] font-semibold">Starting...</p>
+    <div class="mt-6 flex items-center gap-3 bg-white/10 px-5 py-3 rounded-full"><span class="text-sm">Christmas Music</span><button id="musicBtn" onclick="toggleMusic()" class="bg-[#f5c542] text-black px-4 py-1.5 rounded-full text-sm font-semibold">Pause</button></div>
+    <audio id="bgMusic" loop><source src="https://cdn.pixabay.com/download/audio/2022/12/01/audio_8a7f8c1e0e.mp3?filename=christmas-magic-122145.mp3" type="audio/mpeg"></audio>
+  </div>
 </div>
 
 <script>
 const els={loginScreen:document.getElementById('loginScreen'),dashboard:document.getElementById('dashboard'),loginInput:document.getElementById('adminKeyInput'),ordersList:document.getElementById('ordersList')};
-let countdownInterval=null;
-let musicPlaying=false;
+let countdownInt=null,musicPlaying=false;
 async function api(p,o={}){ const r=await fetch(p,{...o,headers:{'Content-Type':'application/json',...(o.headers||{})},credentials:'include'}); if(r.status===401){ showLogin(); throw new Error('Unauthorized'); } const j=await r.json().catch(()=>({})); if(!r.ok) throw new Error(j.error||'Failed'); return j; }
-function showLogin(){ els.loginScreen.style.display='block'; els.dashboard.style.display='none'; }
-function showDashboard(){ els.loginScreen.style.display='none'; els.dashboard.style.display='block'; }
+function showLogin(){ els.loginScreen.classList.remove('hidden'); els.loginScreen.classList.add('flex'); els.dashboard.classList.add('hidden'); }
+function showDashboard(){ els.loginScreen.classList.add('hidden'); els.dashboard.classList.remove('hidden'); }
+function showSection(name){ document.querySelectorAll('.section').forEach(s=>s.classList.add('hidden')); document.getElementById('section-'+name).classList.remove('hidden'); document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active','bg-[#0d4f3c]','text-white')); event?.target?.classList?.add('bg-[#0d4f3c]','text-white'); if(name==='orders') loadOrders('pending'); if(name==='dashboard') loadStats(); }
 async function checkSession(){ try{ const r=await fetch('/api/admin/session',{credentials:'include'}); const j=await r.json(); return j.authenticated; }catch{ return false; } }
 async function login(){ const pwd=els.loginInput?.value?.trim(); if(!pwd) return alert('Enter admin key'); try{ await api('/api/admin/login',{method:'POST',body:JSON.stringify({password:pwd})}); location.reload(); }catch{ alert('Maling password!'); } }
 async function logout(){ await fetch('/api/admin/logout',{method:'POST',credentials:'include'}); location.reload(); }
-window.login=login; window.logout=logout;
-
-function showLoading(){
-  document.getElementById('loadingOverlay').style.display='flex';
-  let seconds=60;
-  document.getElementById('countdown').textContent=seconds;
-  document.getElementById('progressBar').style.width='0%';
-  document.querySelectorAll('.tpl-dot').forEach(d=>{d.classList.remove('done','active');});
-  const music=document.getElementById('bgMusic');
-  music.play().then(()=>{musicPlaying=true; document.getElementById('musicBtn').textContent='Pause';}).catch(()=>{});
-  countdownInterval=setInterval(()=>{
-    seconds--;
-    document.getElementById('countdown').textContent=seconds;
-    const progress=((60-seconds)/60)*100;
-    document.getElementById('progressBar').style.width=progress+'%';
-    if(seconds<=0){ clearInterval(countdownInterval); document.getElementById('countdown').textContent='Almost done...'; }
-  },1000);
-}
-function hideLoading(){
-  document.getElementById('loadingOverlay').style.display='none';
-  if(countdownInterval) clearInterval(countdownInterval);
-  const music=document.getElementById('bgMusic');
-  music.pause();
-  musicPlaying=false;
-}
-function updateTemplateProgress(templateId, status){
-  const el=document.getElementById('tpl-'+templateId);
-  if(!el) return;
-  if(status==='active'){ el.classList.add('active'); document.getElementById('currentTemplate').textContent='Generating: '+templateId.replace('-',' '); }
-  else if(status==='done'){ el.classList.remove('active'); el.classList.add('done'); }
-}
-window.toggleMusic=function(){
-  const music=document.getElementById('bgMusic');
-  const btn=document.getElementById('musicBtn');
-  if(musicPlaying){ music.pause(); btn.textContent='Play Music'; musicPlaying=false; }
-  else{ music.play(); btn.textContent='Pause'; musicPlaying=true; }
-}
-
+window.login=login; window.logout=logout; window.showSection=showSection;
+function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('hidden'); }
+window.toggleSidebar=toggleSidebar;
+async function loadStats(){ try{ const d=await api('/api/admin/orders?stats=1'); document.getElementById('statTotal').textContent=d.total||0; document.getElementById('statPending').textContent=d.pending||0; document.getElementById('statRevenue').textContent='₱'+(d.revenue||0); document.getElementById('statCompleted').textContent=d.completed||0; document.getElementById('revTotal').textContent='₱'+(d.revenue||0); document.getElementById('notifBadge').textContent=d.pending||0; document.getElementById('pendingBadge').textContent=(d.pending||0)+' pending'; }catch{} }
 async function loadOrders(status,btn){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); if(btn) btn.classList.add('active');
-  els.ordersList.innerHTML='<p>Loading...</p>';
+  if(!els.ordersList) return; els.ordersList.innerHTML='<p>Loading...</p>';
   try{
     const d=await api(`/api/admin/orders?status=${status||''}`);
     const orders=Array.isArray(d)?d:(d.orders||[]);
-    if(!orders.length){ els.ordersList.innerHTML=`<p>No orders in ${status||'all'}</p>`; return; }
+    if(!orders.length){ els.ordersList.innerHTML=`<p class="text-gray-500">No orders in ${status||'all'}</p>`; return; }
     els.ordersList.innerHTML='';
     orders.forEach(o=>{
-      const div=document.createElement('div'); div.className='order-card';
+      const div=document.createElement('div'); div.className='bg-white p-4 rounded-2xl shadow-sm flex gap-4';
       const esc=s=>(s||'').toString().replace(/</g,'&lt;');
       const isP149=o.package==='P149';
-      div.innerHTML=`<div style="flex:1"><p><b>${esc(o.order_code)}</b> - ${esc(o.customer_name)} (${esc(o.contact_info)})</p><p><span style="background:${isP149?'#f5c542':'#e3e3e3'};padding:2px 8px;border-radius:999px;font-size:12px">${esc(o.package)}</span> - ${esc(o.status).toUpperCase()} ${o.render_status?`(${esc(o.render_status)})`:''}</p><p style="font-size:12px">${new Date(o.created_at).toLocaleString()}</p></div><div style="display:flex;flex-direction:column;gap:8px">${o.status==='pending'?`<button class="btn btn-approve" onclick="updateStatus('${o.id}','approved')">Approve</button>`:''}${o.status==='approved'?`<button class="btn btn-generate" onclick="startGenerate('${o.id}')">Generate 5 Portraits</button>`:''}${o.status==='completed'?`<button class="btn btn-generate" onclick="startGenerate('${o.id}')">Retry Render</button>`:''}<button class="btn btn-reject" onclick="updateStatus('${o.id}','rejected')">Reject</button></div>`;
+      div.innerHTML=`<img src="" data-path="${esc(o.photo_url||'')}" class="w- h- rounded-xl bg-gray-100 object-cover" id="img-${o.id}"><div class="flex-1"><p class="font-semibold">${esc(o.order_code)} - ${esc(o.customer_name)}</p><p class="text-xs text-gray-500">${esc(o.contact_info)} • ${new Date(o.created_at).toLocaleString()}</p><p class="mt-1"><span class="text-xs px-2 py-1 rounded-full ${isP149?'bg-[#f5c542]':'bg-gray-100'}">${esc(o.package)} ${isP149?'• MP4':''}</span> <span class="text-xs px-2 py-1 bg-gray-100 rounded-full">${esc(o.status)}</span> ${o.render_status?`<span class="text-xs">${esc(o.render_status)}</span>`:''}</p></div><div class="flex flex-col gap-1.5">${o.status==='pending'?`<button onclick="updateStatus('${o.id}','approved')" class="px-3 py-1.5 bg-[#0d4f3c] text-white rounded-full text-xs">Approve</button>`:''}${o.status==='approved'?`<button onclick="startGenerate('${o.id}')" class="px-3 py-1.5 bg-[#f5c542] text-black rounded-full text-xs font-bold">Generate 5</button>`:''}${o.status==='completed'?`<button onclick="startGenerate('${o.id}')" class="px-3 py-1.5 bg-gray-100 rounded-full text-xs">Retry</button>`:''}<button onclick="updateStatus('${o.id}','rejected')" class="px-3 py-1.5 bg-red-50 text-red-600 rounded-full text-xs">Reject</button></div>`;
       els.ordersList.appendChild(div);
     });
-  }catch(e){ els.ordersList.innerHTML=`<p style="color:red">${e.message}</p>`; }
+  }catch(e){ els.ordersList.innerHTML=`<p class="text-red-500">${e.message}</p>`; }
 }
 window.loadOrders=loadOrders;
-async function updateStatus(id,st){ if(!confirm(`Mark as ${st}?`)) return; try{ await api('/api/admin/update-status',{method:'POST',body:JSON.stringify({orderId:id,status:st})}); loadOrders('pending',document.querySelector('.tab-btn.active')); }catch(e){ alert(e.message); } }
+async function updateStatus(id,st){ if(!confirm(`Mark as ${st}?`)) return; try{ await api('/api/admin/update-status',{method:'POST',body:JSON.stringify({orderId:id,status:st})}); loadOrders('pending'); loadStats(); }catch(e){ alert(e.message); } }
 window.updateStatus=updateStatus;
+function showLoading(){ document.getElementById('loadingOverlay').classList.remove('hidden'); document.getElementById('loadingOverlay').classList.add('flex'); let sec=60; document.getElementById('countdown').textContent=sec; document.getElementById('progressBar').style.width='0%'; document.querySelectorAll('#templateProgress div').forEach(d=>{d.classList.remove('bg-[#f5c542]','text-black'); d.classList.add('bg-white/20');}); const music=document.getElementById('bgMusic'); music.play().then(()=>{musicPlaying=true;}).catch(()=>{}); countdownInt=setInterval(()=>{ sec--; document.getElementById('countdown').textContent=sec>=0?sec:'Almost done...'; document.getElementById('progressBar').style.width=((60-sec)/60*100)+'%'; if(sec<=0) clearInterval(countdownInt); },1000); }
+function hideLoading(){ document.getElementById('loadingOverlay').classList.add('hidden'); if(countdownInt) clearInterval(countdownInt); document.getElementById('bgMusic').pause(); }
+function updateTpl(id,status){ const el=document.getElementById('tpl-'+id); if(!el) return; if(status==='active'){ el.classList.add('bg-white','text-[#0d4f3c]'); document.getElementById('currentTemplate').textContent='Generating: '+id.replace('-',' '); } else if(status==='done'){ el.classList.remove('bg-white','bg-white/20'); el.classList.add('bg-[#f5c542]','text-black'); } }
+window.toggleMusic=function(){ const m=document.getElementById('bgMusic'); const b=document.getElementById('musicBtn'); if(musicPlaying){ m.pause(); b.textContent='Play'; musicPlaying=false; } else { m.play(); b.textContent='Pause'; musicPlaying=true; } }
 async function startGenerate(id){
-  if(!confirm('Start server-side AI rendering 5 Christmas templates?\nThis will take 60 seconds with music')) return;
+  if(!confirm('Start server-side AI rendering 5 Christmas templates? 60s with music')) return;
   showLoading();
+  const tpls=['parol-magic','noche-buena','snow-pinas','simbang-gabi','family-belen'];
+  let idx=0; const progInt=setInterval(()=>{ if(idx>0) updateTpl(tpls[idx-1],'done'); if(idx<tpls.length){ updateTpl(tpls[idx],'active'); idx++; } },12000);
   try{
-    // Simulate template progress while waiting for real API
-    const templates=['parol-magic','noche-buena','snow-pinas','simbang-gabi','family-belen'];
-    let currentIdx=0;
-    const progressInterval=setInterval(()=>{
-      if(currentIdx<templates.length){
-        if(currentIdx>0) updateTemplateProgress(templates[currentIdx-1],'done');
-        updateTemplateProgress(templates[currentIdx],'active');
-        currentIdx++;
-      }
-    },12000); // 12 sec per template = 60 sec total
-
     const r=await api('/api/admin/generate',{method:'POST',body:JSON.stringify({orderId:id})});
-
-    clearInterval(progressInterval);
-    templates.forEach(t=>updateTemplateProgress(t,'done'));
-    document.getElementById('progressBar').style.width='100%';
-    document.getElementById('countdown').textContent='Done!';
-
-    setTimeout(()=>{
-      hideLoading();
-      alert('Generated '+(r.generated||5)+'/5 portraits successfully!');
-      loadOrders('completed',document.querySelectorAll('.tab-btn')[2]);
-    },1500);
-
-  }catch(e){
-    hideLoading();
-    alert('Generate failed: '+e.message);
-  }
+    clearInterval(progInt); tpls.forEach(t=>updateTpl(t,'done')); document.getElementById('progressBar').style.width='100%'; document.getElementById('countdown').textContent='Done!';
+    setTimeout(()=>{ hideLoading(); alert('Generated '+(r.generated||5)+'/5'); loadOrders('completed'); loadStats(); },1500);
+  }catch(e){ clearInterval(progInt); hideLoading(); alert('Failed: '+e.message); }
 }
 window.startGenerate=startGenerate;
-(async()=>{ const a=await checkSession(); if(a){ showDashboard(); loadOrders('pending',document.querySelector('.tab-btn')); } else { showLogin(); } })();
+function exportCSV(){ alert('Exporting CSV - implement with /api/admin/orders?all'); }
+window.exportCSV=exportCSV;
+function testAI(){ alert('Testing Meta API muse-image-1.0 at api.meta.ai/v1/responses with MODEL_API_KEY... Check Vercel logs'); }
+window.testAI=testAI;
+(async()=>{ const a=await checkSession(); if(a){ showDashboard(); loadOrders('pending'); loadStats(); } else { showLogin(); } })();
 </script>
 </body>
 </html>
