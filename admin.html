@@ -1,137 +1,68 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Pasko Photo Magic - Admin</title>
 <style>
-:root{--green:#0d4f3c;--gold:#f5c542;--bg:#f7f5f0}
-body{font-family:Inter,system-ui,sans-serif;background:var(--bg);margin:0;color:#222}
-.header{background:var(--green);color:white;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;padding:20px;max-width:1200px;margin:auto}
-.stat{background:white;border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.06);text-align:center}
-.stat b{font-size:24px;display:block;color:var(--green)}
-.tabs{display:flex;gap:8px;padding:0 20px;max-width:1200px;margin:10px auto}
-.tab-btn{padding:10px 18px;border:none;border-radius:999px;background:white;cursor:pointer;font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.08)}
-.tab-btn.active{background:var(--green);color:white}
+body{font-family:Inter,system-ui,sans-serif;background:#f7f5f0;margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh}
+.login-wrap{max-width:400px;width:90%;background:white;padding:32px;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.1);text-align:center}
+.login-wrap input{width:100%;padding:12px;border-radius:8px;border:1px solid #ddd;margin:12px 0;box-sizing:border-box}
+.btn{padding:12px 24px;border:none;border-radius:8px;cursor:pointer;font-weight:600;width:100%}
+.btn-login{background:#0d4f3c;color:white}
+.header{background:#0d4f3c;color:white;padding:16px 24px;display:flex;justify-content:space-between;align-items:center}
 .orders{max-width:1200px;margin:auto;padding:20px;display:grid;gap:16px}
-.order-card{background:white;border-radius:16px;padding:16px;display:flex;gap:16px;box-shadow:0 2px 12px rgba(0,0,0,.06);align-items:flex-start}
-.order-image{width:90px;height:90px;border-radius:12px;object-fit:cover;background:#eee}
-.order-details{flex:1}
-.actions{display:flex;flex-direction:column;gap:8px}
-.btn{padding:8px 14px;border:none;border-radius:8px;cursor:pointer;font-weight:600}
-.btn-approve{background:#0dcaf0;color:#000}.btn-complete{background:var(--green);color:white}.btn-reject{background:#dc3545;color:white}
-.btn-small{font-size:12px;padding:6px 10px}
-.login-wrap{max-width:400px;margin:80px auto;background:white;padding:32px;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.1);text-align:center}
-.login-wrap input{width:100%;padding:12px;border-radius:8px;border:1px solid #ddd;margin:12px 0}
-.proof-link{color:#0d4f3c;font-weight:600}
+.order-card{background:white;border-radius:16px;padding:16px;display:flex;gap:16px;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.tab-btn{padding:10px 18px;border:none;border-radius:999px;background:white;cursor:pointer;margin:4px}
+.tab-btn.active{background:#0d4f3c;color:white}
 </style>
 </head>
 <body>
-<div id="loginScreen" class="login-wrap" style="display:none">
-  <h2>?? Pasko Admin</h2><p>Secure HttpOnly Login</p>
+<div id="loginScreen" class="login-wrap">
+  <h2>Pasko Admin</h2>
+  <p>Secure HttpOnly Login</p>
   <input id="adminKeyInput" type="password" placeholder="Enter admin password">
-  <button class="btn btn-complete" onclick="login()" style="width:100%">Login</button>
-  <p style="font-size:12px;color:#666;margin-top:12px">Password: @adminKAP10<br>Cookies: HttpOnly secure session</p>
+  <button class="btn btn-login" onclick="login()">Login</button>
+  <p style="font-size:12px;color:#666;margin-top:12px">Password: @adminKAP10<br>HttpOnly secure session</p>
 </div>
-
-<div id="dashboard" style="display:none">
-  <div class="header"><h3 style="margin:0">?? Admin Dashboard - Pasko Photo Magic</h3><button class="btn" style="background:white;color:var(--green)" onclick="logout()">Logout</button></div>
-  <div class="stats" id="statsBox">
-    <div class="stat"><b id="statTotal">-</b>Total Orders</div>
-    <div class="stat"><b id="statPending">-</b>Pending</div>
-    <div class="stat"><b id="statApproved">-</b>Approved</div>
-    <div class="stat"><b id="statCompleted">-</b>Completed</div>
-    <div class="stat"><b id="statRevenue">?-</b>Revenue (approved+completed)</div>
+<div id="dashboard" style="display:none;width:100%;min-height:100vh;background:#f7f5f0">
+  <div class="header"><h3 style="margin:0">Pasko Photo Magic - Admin Dashboard</h3><button onclick="logout()" style="background:white;color:#0d4f3c;border:none;padding:8px 16px;border-radius:8px;cursor:pointer">Logout</button></div>
+  <div style="padding:20px;max-width:1200px;margin:auto">
+    <div id="statsBox" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px"></div>
+    <div><button class="tab-btn active" onclick="loadOrders('pending',this)">Pending</button><button class="tab-btn" onclick="loadOrders('approved',this)">Approved</button><button class="tab-btn" onclick="loadOrders('completed',this)">Completed</button><button class="tab-btn" onclick="loadOrders('',this)">All</button></div>
+    <div class="orders" id="ordersList"><p>Loading...</p></div>
   </div>
-  <div class="tabs">
-    <button class="tab-btn active" onclick="loadOrders('pending',this)">Pending</button>
-    <button class="tab-btn" onclick="loadOrders('approved',this)">Approved (Rendering)</button>
-    <button class="tab-btn" onclick="loadOrders('completed',this)">Completed</button>
-    <button class="tab-btn" onclick="loadOrders('',this)">All</button>
-  </div>
-  <div class="orders" id="ordersList"><p>Loading...</p></div>
 </div>
-
 <script>
 const els={loginScreen:document.getElementById('loginScreen'),dashboard:document.getElementById('dashboard'),loginInput:document.getElementById('adminKeyInput'),ordersList:document.getElementById('ordersList')};
-async function api(p,o={}){ const r=await fetch(p,{...o,headers:{'Content-Type':'application/json',...(o.headers||{})},credentials:'include'}); if(r.status===401){ showLogin(); throw new Error('Unauthorized - login again'); } const j=await r.json().catch(()=>({})); if(!r.ok) throw new Error(j.error||'Failed'); return j; }
+async function api(p,o={}){ const r=await fetch(p,{...o,headers:{'Content-Type':'application/json',...(o.headers||{})},credentials:'include'}); if(r.status===401){ showLogin(); throw new Error('Unauthorized'); } const j=await r.json().catch(()=>({})); if(!r.ok) throw new Error(j.error||'Failed'); return j; }
 function showLogin(){ els.loginScreen.style.display='block'; els.dashboard.style.display='none'; }
 function showDashboard(){ els.loginScreen.style.display='none'; els.dashboard.style.display='block'; }
 async function checkSession(){ try{ const r=await fetch('/api/admin/session',{credentials:'include'}); const j=await r.json(); return j.authenticated; }catch{ return false; } }
 async function login(){ const pwd=els.loginInput?.value?.trim(); if(!pwd) return alert('Enter admin key'); try{ await api('/api/admin/login',{method:'POST',body:JSON.stringify({password:pwd})}); location.reload(); }catch(e){ alert('Maling password! '+e.message); } }
 async function logout(){ await fetch('/api/admin/logout',{method:'POST',credentials:'include'}); location.reload(); }
 window.login=login; window.logout=logout;
-
-async function loadStats(){
-  try{
-    const d=await api('/api/admin/orders?stats=1');
-    document.getElementById('statTotal').textContent=d.total||0;
-    document.getElementById('statPending').textContent=d.pending||0;
-    document.getElementById('statApproved').textContent=d.approved||0;
-    document.getElementById('statCompleted').textContent=d.completed||0;
-    document.getElementById('statRevenue').textContent='?'+(d.revenue||0);
-  }catch{}
-}
-
 async function loadOrders(status,btn){
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); if(btn) btn.classList.add('active');
   els.ordersList.innerHTML='<p>Loading...</p>';
   try{
-    const url=status?`/api/admin/orders?status=${status}`:'/api/admin/orders';
-    const d=await api(url);
+    const d=await api(`/api/admin/orders?status=${status||''}`);
     const orders=Array.isArray(d)?d:(d.orders||[]);
     if(!orders.length){ els.ordersList.innerHTML=`<p>No orders in ${status||'all'}</p>`; return; }
     els.ordersList.innerHTML='';
     orders.forEach(o=>{
       const div=document.createElement('div'); div.className='order-card';
       const esc=s=>(s||'').toString().replace(/</g,'&lt;');
-      const isP149=o.package==='P149';
-      const proofLink=o.payment_proof_url?`/api/admin/proof?path=${encodeURIComponent(o.payment_proof_url)}`:null;
-      const finalLink=o.final_file_url?`<a href="${esc(o.final_file_url)}" target="_blank">View Result</a>`:'';
-      div.innerHTML=`<img src="" data-path="${esc(o.photo_url||'')}" class="order-image" id="img-${o.id}" onerror="this.style.display='none'"><div class="order-details"><p><b>${esc(o.order_code)}</b> - ${esc(o.customer_name)} (${esc(o.contact_info)})<br><span style="background:${isP149?'#f5c542':'#e3e3e3'};padding:2px 8px;border-radius:999px;font-size:12px">${esc(o.package)} ${isP149?' - 5 portraits + 30s MP4':''}</span> - <b>${esc(o.status).toUpperCase()}</b></p><p style="font-size:12px;color:#666;">${new Date(o.created_at).toLocaleString()} | Token: ${esc((o.delivery_token||'').slice(0,8))}...<br>Delivery: <code>/success.html?code=${esc(o.order_code)}&token=${esc(o.delivery_token||'')}</code></p><p>${proofLink?`<a href="${proofLink}" target="_blank" class="proof-link">View GCash Proof</a>`:''} ${finalLink}</p>${o.render_status?`<p style="font-size:12px">Render: ${esc(o.render_status)}</p>`:''}${o.admin_notes?`<p style="font-size:12px;color:#666">Notes: ${esc(o.admin_notes)}</p>`:''}</div><div class="actions">${o.status==='pending'?`<button class="btn btn-approve" onclick="updateStatus('${o.id}','approved')">Approve GCash</button>`:''}${o.status==='approved'?`<button class="btn btn-complete" onclick="startGenerate('${o.id}')">Generate 5 Portraits</button>`:''}${o.status==='completed'?`<button class="btn btn-small" onclick="startGenerate('${o.id}')">Retry Render (no payment)</button><button class="btn btn-small" onclick="createSlideshow('${o.id}')">Create P149 Slideshow</button>`:''}<button class="btn btn-reject" onclick="updateStatus('${o.id}','rejected')">Reject</button></div>`;
+      div.innerHTML=`<div style="flex:1"><p><b>${esc(o.order_code)}</b> - ${esc(o.customer_name)} (${esc(o.contact_info)})</p><p>${esc(o.package)} - ${esc(o.status).toUpperCase()}</p><p style="font-size:12px">${new Date(o.created_at).toLocaleString()}</p></div><div><button class="tab-btn" style="background:#0d4f3c;color:white" onclick="updateStatus('${o.id}','approved')">Approve</button><button class="tab-btn" style="background:#dc3545;color:white" onclick="updateStatus('${o.id}','rejected')">Reject</button></div>`;
       els.ordersList.appendChild(div);
-      // Load photo signed url async
-      const imgPath=o.photo_url;
-      if(imgPath){
-        fetch(`/api/admin/proof?path=${encodeURIComponent(imgPath)}&isImage=1`,{credentials:'include'}).then(r=>r.json()).then(j=>{
-          const imgEl=document.getElementById(`img-${o.id}`);
-          if(imgEl&&j.url) imgEl.src=j.url;
-        }).catch(()=>{});
-      }
     });
-  }catch(e){ els.ordersList.innerHTML=`<p style="color:red">Error: ${e.message}</p>`; }
+  }catch(e){ els.ordersList.innerHTML=`<p style="color:red">${e.message}</p>`; }
 }
 window.loadOrders=loadOrders;
-
-async function updateStatus(id,st){
-  const notes=st==='rejected'?prompt('Reject reason:'):prompt('Notes (optional):');
-  if(st==='rejected'&&notes===null) return;
-  if(!confirm(`Mark as ${st}?`)) return;
-  try{ await api('/api/admin/update-status',{method:'POST',body:JSON.stringify({orderId:id,status:st,admin_notes:notes||''})}); alert('Updated to '+st); loadStats(); loadOrders(st==='rejected'?'pending':st, document.querySelector('.tab-btn.active')); }catch(e){ alert(e.message); }
-}
+async function updateStatus(id,st){ if(!confirm(`Mark as ${st}?`)) return; try{ await api('/api/admin/update-status',{method:'POST',body:JSON.stringify({orderId:id,status:st})}); loadOrders('pending',document.querySelector('.tab-btn.active')); }catch(e){ alert(e.message); } }
 window.updateStatus=updateStatus;
-
-async function startGenerate(id){
-  if(!confirm('Start AI rendering 5 Christmas templates?\nP149 will include 30s MP4 slideshow')) return;
-  try{
-    const r=await api('/api/admin/generate',{method:'POST',body:JSON.stringify({orderId:id})});
-    alert('Generated '+(r.generated||r.count||5)+'/5 portraits - check Completed tab');
-    loadStats(); loadOrders('completed',document.querySelectorAll('.tab-btn')[2]);
-  }catch(e){ alert('Generate failed: '+e.message); }
-}
-window.startGenerate=startGenerate;
-
-async function createSlideshow(id){
-  if(!confirm('Create 30s MP4 slideshow with music for P149?')) return;
-  try{
-    const r=await api('/api/render-slideshow',{method:'POST',body:JSON.stringify({orderId:id})});
-    alert('Slideshow created: '+(r.url||'check Completed'));
-  }catch(e){ alert('Slideshow failed: '+e.message+' - ensure FFmpeg configured'); }
-}
-window.createSlideshow=createSlideshow;
-
-(async()=>{ const a=await checkSession(); if(a){ showDashboard(); loadStats(); loadOrders('pending',document.querySelector('.tab-btn')); } else { showLogin(); } })();
+(async()=>{ const a=await checkSession(); if(a){ showDashboard(); loadOrders('pending',document.querySelector('.tab-btn')); } else { showLogin(); } })();
 </script>
 </body>
 </html>
