@@ -6,7 +6,7 @@ const SUPABASE_URL = 'https://vllqavcfqydtscbdrcex.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // Paste your ANON key here
 
 // Change this to your secret password!
-const ADMIN_PASSWORD = 'pasko-admin-2026'; 
+const ADMIN_PASSWORD = '@Jesus143'; 
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
