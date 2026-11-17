@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#edf6ef">
+  <title>Order Submitted — Pasko Photo Magic</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700;800&family=Great+Vibes&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Extra styles just for this page */
+    .success-card {
+      background: rgba(255, 253, 248, 0.96);
+      border: 1px solid #e6e8df;
+      border-radius: 23px;
+      padding: 40px 30px;
+      box-shadow: var(--shadow);
+      max-width: 650px;
+      margin: 40px auto;
+      text-align: center;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 800;
+      font-size: 14px;
+      background: #fff8e6;
+      color: #b07d15;
+      margin-top: 10px;
+    }
+    .status-badge.approved { background: #e6f4ea; color: #1e8e3e; }
+    .status-badge.completed { background: #e8f0fe; color: #1967d2; }
+    .status-badge.rejected { background: #fce8e6; color: #d93025; }
+    
+    .pre-link-box {
+      background: #edf6ef;
+      border: 2px dashed var(--green);
+      border-radius: 16px;
+      padding: 20px;
+      margin: 25px 0;
+      display: none; /* Hidden until loaded */
+    }
+    .pre-link-box.active { display: block; }
+    
+    .link-input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 13px;
+      text-align: center;
+      background: white;
+      margin-bottom: 10px;
+    }
+    .btn-copy {
+      background: var(--green);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: 0.2s;
+      width: 100%;
+    }
+    .btn-copy:hover { background: var(--green-dark); }
+    .btn-copy.copied { background: #1e8e3e; }
+    
+    .steps-list {
+      text-align: left;
+      margin: 20px auto;
+      max-width: 400px;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="index.html"><span class="brand-script">Pasko</span><span>Photo Magic</span></a>
+  </header>
+
+  <main>
+    <div class="wrap">
+      <div class="success-card" id="orderSummary">
+        <h2 style="font-family: var(--serif); color: var(--green);">Loading details...</h2>
+      </div>
+    </div>
+  </main>
+
+  <!-- Load Config, Supabase, and Script -->
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js"></script>
+</body>
+</html>
