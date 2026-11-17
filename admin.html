@@ -1,156 +1,134 @@
-﻿<!DOCTYPE html>
-<html lang="en">
-<head>
-<【entity-meta¦canonical_name=Meta】 charset="UTF-8">
-<【entity-meta¦canonical_name=Meta】 name="viewport" content="width=device-width,initial-scale=1">
-<title>Pasko Photo Magic - Admin Full Control</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>*{font-family:Inter,sans-serif}::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:#ddd;border-radius:999px}</style>
+﻿<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><title>Pasko Admin - Full Control</title>
+<style>
+:root{--green:#0d4f3c;--gold:#f5c542;--cream:#f7f5f0;--ink:#111827;--muted:#6b7280;--border:#e5e7eb;--card:#ffffff;--radius:16px}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+body{background:var(--cream);color:var(--ink);line-height:1.5;overflow-x:hidden}
+.hidden{display:none!important}.flex{display:flex}.grid{display:grid}
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
+.login-card{background:var(--card);border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.1);padding:32px;width:100%;max-width:400px;text-align:center}
+.input{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:12px;font-size:16px;margin-top:16px} /* 16px prevents iOS zoom */
+.input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(13,79,60,.15)}
+.btn{border:0;border-radius:999px;padding:12px 18px;font-weight:600;font-size:14px;cursor:pointer;transition:.15s}
+.btn-green{background:var(--green);color:#fff}.btn-green:active{transform:scale(.98)}
+.btn-gold{background:var(--gold);color:#000}.btn-white{background:#fff;border:1px solid var(--border)}
+.badge{font-size:11px;padding:4px 10px;border-radius:999px;background:#f3f4f6;display:inline-block}
+.badge-gold{background:var(--gold);color:#000}.badge-green{background:var(--green);color:#fff}
+.header{position:sticky;top:0;z-index:20;background:var(--green);color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
+.main{display:flex;min-height:calc(100vh - 58px)}
+.sidebar{display:none;width:260px;background:#fff;border-right:1px solid var(--border);flex-direction:column;padding:12px;position:sticky;top:58px;height:calc(100vh - 58px)}
+.sidebar .nav{display:flex;flex-direction:column;gap:4px;flex:1}
+.sidebar .nav button{width:100%;text-align:left;padding:10px 12px;border-radius:12px;border:0;background:transparent;font-size:14px;cursor:pointer}
+.sidebar .nav button.active{background:var(--green);color:#fff}
+.content{flex:1;padding:16px 16px 90px 16px;max-width:1400px;margin:0 auto;width:100%}
+.stats{grid-template-columns:1fr 1fr;gap:12px;display:grid;margin-bottom:16px}
+.card{background:var(--card);border-radius:var(--radius);padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.06);border:1px solid rgba(0,0,0,.04)}
+.stat p:first-child{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.stat p:nth-child(2){font-size:22px;font-weight:800;margin:2px 0}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;margin-bottom:12px}
+.tab{white-space:nowrap;padding:8px 14px;border-radius:999px;border:1px solid var(--border);background:#fff;font-size:13px;cursor:pointer}
+.tab.active{background:var(--green);color:#fff;border-color:var(--green)}
+.order-card{display:flex;gap:12px}
+.order-card img{width:72px;height:72px;border-radius:12px;background:#f3f4f6;object-fit:cover;flex-shrink:0}
+.bnav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:#fff;border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:6px 0}
+.bnav button{flex:1;display:flex;flex-direction:column;align-items:center;font-size:11px;padding:6px;background:transparent;border:0;cursor:pointer}
+.overlay{position:fixed;inset:0;background:rgba(13,79,60,.96);color:#fff;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
+.count{font-size:56px;font-weight:900;color:var(--gold);margin:8px 0}
+.pbar{width:100%;max-width:400px;height:10px;background:rgba(255,255,255,.2);border-radius:999px;overflow:hidden;margin-top:12px}
+.pfill{height:100%;background:var(--gold);width:0;transition:width .5s}
+.tpls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:16px}
+.tpl{width:62px;height:62px;border-radius:12px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:10px;text-align:center;line-height:1.1}
+.tpl.done{background:var(--gold);color:#000}
+@media(min-width:768px){
+  .content{padding:24px 24px 24px 24px}
+  .sidebar{display:flex}
+  .bnav{display:none}
+  .stats{grid-template-columns:repeat(4,1fr);gap:16px}
+  .order-card img{width:80px;height:80px}
+  .header{padding:14px 24px}
+}
+</style>
 </head>
-<body class="bg-[#f7f5f0] min-h-screen">
-<!-- Login -->
-<div id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
-  <div class="bg-white rounded- shadow-xl p-8 w-full max-w- text-center">
-    <h1 class="text-2xl font-bold text-[#0d4f3c]">Pasko Admin</h1>
-    <p class="text-gray-500 text-sm mt-1">Full Control Dashboard</p>
-    <input id="adminKeyInput" type="password" placeholder="Enter admin password" class="w-full mt-6 p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0d4f3c]">
-    <button onclick="login()" class="w-full mt-3 bg-[#0d4f3c] text-white p-3 rounded-xl font-semibold hover:bg-[#0a3d2f]">Login</button>
-    <p class="text- text-gray-400 mt-3">Protected by HttpOnly secure session</p>
-  </div>
-</div>
-
-<!-- Dashboard -->
+<body>
+<div id="loginScreen" class="login-wrap"><div class="login-card"><h1 style="font-size:24px;font-weight:800;color:var(--green)">Pasko Admin</h1><p style="color:var(--muted);font-size:13px;margin-top:4px">Full Control Dashboard - No CDN</p><input id="adminKeyInput" class="input" type="password" placeholder="Enter admin password"><button onclick="login()" class="btn btn-green" style="width:100%;margin-top:12px">Login Secure</button><p style="font-size:11px;color:#9ca3af;margin-top:10px">HttpOnly session • mobile priority CSS</p></div></div>
 <div id="dashboard" class="hidden">
-  <!-- Header -->
-  <header class="sticky top-0 z-20 bg-[#0d4f3c] text-white px-4 md:px-6 py-4 flex justify-between items-center">
-    <div class="flex items-center gap-3"><button onclick="toggleSidebar()" class="md:hidden p-2 bg-white/10 rounded-lg">☰</button><h1 class="font-bold">Pasko Admin - Full Control</h1><span class="hidden md:inline bg-white/20 text-xs px-2 py-1 rounded-full ml-2">v2.0 Secure</span></div>
-    <div class="flex items-center gap-3"><button onclick="loadOrders('pending')" class="relative p-2 bg-white/10 rounded-full"><span>🔔</span><span id="notifBadge" class="absolute -top-1 -right-1 bg-[#f5c542] text-black text- w-5 h-5 rounded-full flex items-center justify-center font-bold">3</span></button><button onclick="logout()" class="bg-white text-[#0d4f3c] px-4 py-2 rounded-full text-sm font-semibold">Logout</button></div>
-  </header>
-
-  <div class="flex">
-    <!-- Sidebar Desktop -->
-    <aside id="sidebar" class="hidden md:flex w- bg-white border-r min-h-[calc(100vh-64px)] flex-col p-4 sticky top-">
-      <nav class="space-y-1 flex-1">
-        <button onclick="showSection('dashboard')" class="nav-btn active w-full text-left px-3 py-2.5 rounded-xl bg-[#0d4f3c] text-white font-medium">📊 Dashboard</button>
-        <button onclick="showSection('orders')" class="nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-gray-100">📦 Orders <span id="pendingBadge" class="ml-auto bg-[#f5c542] text-xs px-2 py-0.5 rounded-full">pending</span></button>
-        <button onclick="showSection('templates')" class="nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-gray-100">🎨 Templates</button>
-        <button onclick="showSection('customers')" class="nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-gray-100">👥 Customers</button>
-        <button onclick="showSection('packages')" class="nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-gray-100">💰 Packages</button>
-        <button onclick="showSection('ai')" class="nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-gray-100">🤖 AI Models</button>
-        <button onclick="showSection('storage')" class="nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-gray-100">💾 Storage</button>
-        <button onclick="showSection('revenue')" class="nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-gray-100">📈 Revenue</button>
-        <button onclick="showSection('settings')" class="nav-btn w-full text-left px-3 py-2.5 rounded-xl hover:bg-gray-100">⚙️ Settings</button>
-      </nav>
-      <div class="mt-4 p-3 bg-[#f7f5f0] rounded-xl"><p class="text-xs font-semibold">AI Status</p><p class="text-xs text-green-600">● muse-image-1.0 online</p><p class="text- text-gray-500">₱67.75 spent • 102 req</p></div>
-    </aside>
-
-    <!-- Main -->
-    <main class="flex-1 p-4 md:p-6 max-w- mx-auto w-full">
-      <!-- Dashboard Section -->
-      <div id="section-dashboard" class="section">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div class="bg-white p-4 rounded-2xl shadow-sm"><p class="text-xs text-gray-500">Total Orders</p><p id="statTotal" class="text-2xl font-bold">-</p><p class="text-xs text-green-600">↑ 12%</p></div>
-          <div class="bg-white p-4 rounded-2xl shadow-sm"><p class="text-xs text-gray-500">Pending</p><p id="statPending" class="text-2xl font-bold">-</p><p class="text-xs text-amber-600">Needs action</p></div>
-          <div class="bg-white p-4 rounded-2xl shadow-sm"><p class="text-xs text-gray-500">Revenue</p><p id="statRevenue" class="text-2xl font-bold">₱-</p><p class="text-xs text-green-600">P99+P149</p></div>
-          <div class="bg-white p-4 rounded-2xl shadow-sm"><p class="text-xs text-gray-500">Completed</p><p id="statCompleted" class="text-2xl font-bold">-</p><p class="text-xs text-gray-500">Done</p></div>
-        </div>
-        <div class="grid md:grid-cols-3 gap-4 mb-6">
-          <div class="md:col-span-2 bg-white p-5 rounded-2xl shadow-sm"><h3 class="font-semibold mb-3">Revenue Last 7 Days</h3><div class="h- flex items-end gap-2"><div class="flex-1 bg-[#0d4f3c]/20 rounded-t-lg" style="height:40%"></div><div class="flex-1 bg-[#0d4f3c]/40 rounded-t-lg" style="height:65%"></div><div class="flex-1 bg-[#0d4f3c]/60 rounded-t-lg" style="height:50%"></div><div class="flex-1 bg-[#0d4f3c] rounded-t-lg" style="height:85%"></div><div class="flex-1 bg-[#f5c542] rounded-t-lg" style="height:100%"></div><div class="flex-1 bg-[#0d4f3c]/30 rounded-t-lg" style="height:45%"></div><div class="flex-1 bg-[#0d4f3c]/50 rounded-t-lg" style="height:70%"></div></div></div>
-          <div class="bg-white p-5 rounded-2xl shadow-sm"><h3 class="font-semibold mb-3">Package Split</h3><div class="flex items-center gap-4"><div class="w-20 h-20 rounded-full" style="background:conic-gradient(#0d4f3c 60%, #f5c542 0)"></div><div><p class="text-sm">P99: 60%</p><p class="text-sm">P149: 40%</p><p class="text-xs text-gray-500 mt-2">P149 includes 30s MP4</p></div></div></div>
-        </div>
-      </div>
-
-      <!-- Orders Section -->
-      <div id="section-orders" class="section hidden">
-        <div class="flex flex-wrap gap-2 mb-4"><input id="searchInput" placeholder="Search orders, customers..." class="flex-1 min-w- p-2.5 border rounded-xl"><select id="packageFilter" class="p-2.5 border rounded-xl"><option value="">All Packages</option><option>P99</option><option>P149</option></select><button onclick="exportCSV()" class="px-4 py-2.5 bg-white border rounded-xl text-sm">Export CSV</button></div>
-        <div class="flex gap-2 mb-4 overflow-x-auto"><button class="tab-btn active" onclick="loadOrders('pending',this)">Pending</button><button class="tab-btn" onclick="loadOrders('approved',this)">Approved</button><button class="tab-btn" onclick="loadOrders('completed',this)">Completed</button><button class="tab-btn" onclick="loadOrders('',this)">All</button></div>
-        <div id="ordersList" class="grid gap-3"></div>
-      </div>
-
-      <!-- Templates Section -->
-      <div id="section-templates" class="section hidden">
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" id="templatesGrid">
-          <div class="bg-white p-4 rounded-2xl shadow-sm"><p class="font-semibold">Parol Magic</p><p class="text-xs text-gray-500">Glowing parol lanterns, warm lights</p><div class="mt-2 flex gap-2"><button class="text-xs px-3 py-1 bg-[#0d4f3c] text-white rounded-full">Edit Prompt</button><span class="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">Active</span></div></div>
-          <div class="bg-white p-4 rounded-2xl shadow-sm"><p class="font-semibold">Noche Buena</p><p class="text-xs text-gray-500">Cozy dinner, Filipino home</p><div class="mt-2 flex gap-2"><button class="text-xs px-3 py-1 bg-[#0d4f3c] text-white rounded-full">Edit Prompt</button><span class="text-xs px-2 py-1 bg-green-100 rounded-full">Active</span></div></div>
-          <div class="bg-white p-4 rounded-2xl shadow-sm"><p class="font-semibold">Snow Pinas</p><p class="text-xs text-gray-500">Snow in Philippines, sweater</p><div class="mt-2 flex gap-2"><button class="text-xs px-3 py-1 bg-[#0d4f3c] text-white rounded-full">Edit Prompt</button><span class="text-xs px-2 py-1 bg-green-100 rounded-full">Active</span></div></div>
-          <div class="bg-white p-4 rounded-2xl shadow-sm"><p class="font-semibold">Simbang Gabi</p><p class="text-xs text-gray-500">Church dawn, candles</p><div class="mt-2 flex gap-2"><button class="text-xs px-3 py-1 bg-[#0d4f3c] text-white rounded-full">Edit Prompt</button><span class="text-xs px-2 py-1 bg-green-100 rounded-full">Active</span></div></div>
-          <div class="bg-white p-4 rounded-2xl shadow-sm"><p class="font-semibold">Family Belen</p><p class="text-xs text-gray-500">Nativity, warm glow</p><div class="mt-2 flex gap-2"><button class="text-xs px-3 py-1 bg-[#0d4f3c] text-white rounded-full">Edit Prompt</button><span class="text-xs px-2 py-1 bg-green-100 rounded-full">Active</span></div></div>
-        </div>
-      </div>
-
-      <!-- Other Sections -->
-      <div id="section-customers" class="section hidden"><div class="bg-white p-6 rounded-2xl"><h3 class="font-semibold">Customers</h3><p class="text-sm text-gray-500">Search, view history, resend delivery link</p><div id="customersList" class="mt-4">Loading...</div></div></div>
-      <div id="section-packages" class="section hidden"><div class="grid md:grid-cols-2 gap-4"><div class="bg-white p-6 rounded-2xl"><h3 class="font-bold">P99 - ₱99</h3><p class="text-sm">5 Christmas portraits</p><ul class="text-sm mt-2 list-disc ml-4"><li>5 AI templates</li><li>High quality 4k</li><li>Secure delivery link</li></ul><button class="mt-4 px-4 py-2 bg-[#0d4f3c] text-white rounded-xl text-sm">Edit Package</button></div><div class="bg-white p-6 rounded-2xl border-2 border-[#f5c542]"><h3 class="font-bold">P149 - ₱149 (Popular)</h3><p class="text-sm">5 portraits + 30s MP4 slideshow</p><ul class="text-sm mt-2 list-disc ml-4"><li>5 AI templates</li><li>30s MP4 slideshow with music</li><li>Secure delivery</li><li>Retry without payment</li></ul><button class="mt-4 px-4 py-2 bg-[#f5c542] text-black rounded-xl text-sm font-semibold">Edit Package</button></div></div></div>
-      <div id="section-ai" class="section hidden"><div class="bg-white p-6 rounded-2xl"><h3 class="font-semibold">AI Provider - Full Control</h3><div class="mt-4 grid gap-3 text-sm"><div class="flex justify-between p-3 bg-gray-50 rounded-xl"><span>Model</span><b>muse-image-1.0</b></div><div class="flex justify-between p-3 bg-gray-50 rounded-xl"><span>Endpoint</span><span class="text-xs">api.meta.ai/v1/responses</span></div><div class="flex justify-between p-3 bg-gray-50 rounded-xl"><span>MODEL_API_KEY</span><span>●●●●●●●● (set in Vercel)</span></div><div class="flex justify-between p-3 bg-gray-50 rounded-xl"><span>Requests</span><b>102</b></div><div class="flex justify-between p-3 bg-gray-50 rounded-xl"><span>Spend</span><b>₱67.75</b></div></div><button onclick="testAI()" class="mt-4 px-4 py-2 bg-[#0d4f3c] text-white rounded-xl">Test Connection</button></div></div>
-      <div id="section-storage" class="section hidden"><div class="bg-white p-6 rounded-2xl"><h3 class="font-semibold">Storage - Supabase Private</h3><p class="text-sm text-gray-500">Buckets: uploads (private), results</p><div class="mt-4 p-4 bg-gray-50 rounded-xl text-xs">orders/PASKO-XXXX/photo.jpg<br>orders/PASKO-XXXX/proof.jpg<br>results/PASKO-XXXX/parol-magic.jpg<br>...</div></div></div>
-      <div id="section-revenue" class="section hidden"><div class="bg-white p-6 rounded-2xl"><h3 class="font-semibold">Revenue & Reports</h3><div class="mt-4 grid grid-cols-3 gap-4 text-center"><div><p class="text-2xl font-bold" id="revTotal">₱-</p><p class="text-xs">Total</p></div><div><p class="text-2xl font-bold">₱99</p><p class="text-xs">P99 Avg</p></div><div><p class="text-2xl font-bold">₱149</p><p class="text-xs">P149 Avg</p></div></div></div></div>
-      <div id="section-settings" class="section hidden"><div class="bg-white p-6 rounded-2xl space-y-4"><h3 class="font-semibold">Full Admin Settings</h3><div class="p-4 border rounded-xl"><p class="font-medium text-sm">Admin Security</p><p class="text-xs text-gray-500">Password hash: a21cf5d317bb8e955628ee208de8823788cab2711c28d0a0aff0be057be2fc76</p><p class="text-xs">Session secret: 22995705... (set in Vercel)</p><button class="mt-2 text-xs px-3 py-1 bg-gray-100 rounded-full">Change Password</button></div><div class="p-4 border rounded-xl"><p class="font-medium text-sm">Supabase - New sb_ keys</p><p class="text-xs">URL: https://vllqavcfqydtscbdrcex.supabase.co</p><p class="text-xs">SERVICE_KEY: sb_secret_... (private)</p><p class="text-xs">ANON_KEY: sb_publishable_... </p></div><div class="p-4 border rounded-xl"><p class="font-medium text-sm">【entity-GCash¦canonical_name=GCash】</p><p class="text-xs">Manual verification, no auto simulation</p></div><div class="p-4 border border-red-200 rounded-xl"><p class="font-medium text-sm text-red-600">Danger Zone</p><button class="mt-2 text-xs px-3 py-1 bg-red-50 text-red-600 rounded-full">Clear Pending</button></div></div></div>
+  <header class="header"><div style="display:flex;gap:10px;align-items:center"><span style="font-weight:800">Pasko Admin - Full Control</span><span class="badge badge-gold" style="display:none" id="vBadge">No CDN Fixed</span></div><div style="display:flex;gap:8px;align-items:center"><button onclick="loadOrders('pending')" class="btn btn-white" style="padding:8px 12px;position:relative">🔔 <span id="notifBadge" class="badge badge-gold" style="margin-left:4px">3</span></button><button onclick="logout()" class="btn btn-white" style="background:#fff;color:var(--green)">Logout</button></div></header>
+  <div class="main">
+    <aside id="sidebar" class="sidebar"><nav class="nav"><button onclick="showSection('dashboard')" class="active">📊 Dashboard</button><button onclick="showSection('orders')">📦 Orders <span id="pendingBadge" class="badge badge-gold" style="float:right">pending</span></button><button onclick="showSection('templates')">🎨 Templates</button><button onclick="showSection('packages')">💰 Packages</button><button onclick="showSection('ai')">🤖 AI Models</button><button onclick="showSection('storage')">💾 Storage</button><button onclick="showSection('revenue')">📈 Revenue</button><button onclick="showSection('settings')">⚙️ Settings</button></nav><div class="card" style="background:var(--cream)"><p style="font-size:12px;font-weight:600">AI Status</p><p style="font-size:12px;color:#059669">● muse-image-1.0 online</p><p style="font-size:11px;color:var(--muted)">No CDN • ₱67.75 • 102 req</p></div></aside>
+    <main class="content">
+      <div id="section-dashboard" class="section"><div class="stats"><div class="card stat"><p>Total Orders</p><p id="statTotal">-</p><p style="font-size:11px;color:#059669">↑ 12%</p></div><div class="card stat"><p>Pending</p><p id="statPending">-</p><p style="font-size:11px;color:#d97706">Needs action</p></div><div class="card stat"><p>Revenue</p><p id="statRevenue">₱-</p><p style="font-size:11px;color:#059669">P99+P149</p></div><div class="card stat"><p>Completed</p><p id="statCompleted">-</p></div></div><div class="grid" style="gap:16px;grid-template-columns:1fr"><div class="card"><h3 style="font-size:14px;font-weight:600;margin-bottom:10px">Revenue 7 Days (mobile priority)</h3><div style="height:90px;display:flex;align-items:end;gap:6px"><div style="flex:1;height:40%;background:rgba(13,79,60,.2);border-radius:6px 6px 0 0"></div><div style="flex:1;height:65%;background:rgba(13,79,60,.4);border-radius:6px 6px 0 0"></div><div style="flex:1;height:50%;background:rgba(13,79,60,.6);border-radius:6px 6px 0 0"></div><div style="flex:1;height:85%;background:var(--green);border-radius:6px 6px 0 0"></div><div style="flex:1;height:100%;background:var(--gold);border-radius:6px 6px 0 0"></div></div></div></div></div>
+      <div id="section-orders" class="section hidden"><div style="display:flex;gap:8px;margin-bottom:12px"><input id="searchInput" class="input" style="margin-top:0;flex:1" placeholder="Search orders..."><button onclick="exportCSV()" class="btn btn-white">Export</button></div><div class="tabs"><button class="tab active" onclick="loadOrders('pending',this)">Pending</button><button class="tab" onclick="loadOrders('approved',this)">Approved</button><button class="tab" onclick="loadOrders('completed',this)">Completed</button><button class="tab" onclick="loadOrders('',this)">All</button></div><div id="ordersList" style="display:grid;gap:12px"></div></div>
+      <div id="section-templates" class="section hidden"><div style="display:grid;gap:12px;grid-template-columns:1fr 1fr"><div class="card"><b>Parol Magic</b><p style="font-size:12px;color:var(--muted)">Glowing parol lanterns</p></div><div class="card"><b>Noche Buena</b><p style="font-size:12px;color:var(--muted)">Cozy Filipino dinner</p></div><div class="card"><b>Snow Pinas</b><p style="font-size:12px;color:var(--muted)">Snow in PH</p></div><div class="card"><b>Simbang Gabi</b><p style="font-size:12px;color:var(--muted)">Dawn church</p></div><div class="card"><b>Family Belen</b><p style="font-size:12px;color:var(--muted)">Nativity warm glow</p></div></div></div>
+      <div id="section-packages" class="section hidden"><div style="display:grid;gap:12px"><div class="card"><h3>P99 - ₱99</h3><p style="font-size:13px">5 portraits • secure link</p></div><div class="card" style="border:2px solid var(--gold)"><h3>P149 - ₱149 Popular</h3><p style="font-size:13px">5 portraits + 30s MP4 slideshow with music</p></div></div></div>
+      <div id="section-ai" class="section hidden"><div class="card"><h3 style="font-weight:600">AI Provider - Fixed</h3><div style="margin-top:12px;display:grid;gap:8px;font-size:13px"><div style="display:flex;justify-content:space-between;padding:10px;background:var(--cream);border-radius:10px"><span>Model</span><b>muse-image-1.0</b></div><div style="display:flex;justify-content:space-between;padding:10px;background:var(--cream);border-radius:10px"><span>Endpoint</span><span style="font-size:11px">api.meta.ai/v1/responses</span></div><div style="display:flex;justify-content:space-between;padding:10px;background:var(--cream);border-radius:10px"><span>CDN Status</span><b style="color:#059669">✓ No CDN - Built CSS</b></div><div style="display:flex;justify-content:space-between;padding:10px;background:var(--cream);border-radius:10px"><span>Audio</span><b style="color:#059669">✓ Web Audio API (no 403)</b></div></div><button onclick="testAI()" class="btn btn-green" style="margin-top:12px">Test Connection</button></div></div>
+      <div id="section-storage" class="section hidden"><div class="card"><h3>Storage - Private</h3><p style="font-size:12px;color:var(--muted)">uploads (private) • no public CDN</p><pre style="font-size:11px;background:var(--cream);padding:12px;border-radius:10px;margin-top:10px;overflow:auto">orders/PASKO-XXXX/photo.jpg
+orders/PASKO-XXXX/proof.jpg
+results/PASKO-XXXX/parol-magic.jpg</pre></div></div>
+      <div id="section-revenue" class="section hidden"><div class="card"><h3>Revenue</h3><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px;text-align:center"><div><p id="revTotal" style="font-size:20px;font-weight:800">₱-</p><p style="font-size:11px">Total</p></div><div><p style="font-size:20px;font-weight:800">₱99</p><p style="font-size:11px">P99</p></div><div><p style="font-size:20px;font-weight:800">₱149</p><p style="font-size:11px">P149</p></div></div></div></div>
+      <div id="section-settings" class="section hidden"><div class="card" style="display:grid;gap:12px"><h3>Settings - Full Control Fixed</h3><div style="padding:12px;border:1px solid var(--border);border-radius:12px"><p style="font-size:13px;font-weight:600">Fixes Applied</p><p style="font-size:12px">✓ Removed cdn.tailwindcss.com → built CSS mobile priority</p><p style="font-size:12px">✓ Removed Pixabay 403 → Web Audio API Christmas jingle</p><p style="font-size:12px">✓ Input font-size 16px (no iOS zoom)</p><p style="font-size:12px">✓ Mobile-first: 16px base, 24px desktop</p></div><div style="padding:12px;border:1px solid var(--border);border-radius:12px"><p style="font-size:13px;font-weight:600">Supabase New Keys</p><p style="font-size:11px">URL: vllqavcfqydtscbdrcex.supabase.co</p><p style="font-size:11px">SERVICE: sb_secret_tMGNW... (private)</p><p style="font-size:11px">ANON: sb_publishable_00Muq...</p></div></div></div>
     </main>
   </div>
-
-  <!-- Mobile Bottom Nav -->
-  <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around p-2 z-20">
-    <button onclick="showSection('dashboard')" class="flex flex-col items-center text-xs p-2"><span>📊</span>Dashboard</button>
-    <button onclick="showSection('orders')" class="flex flex-col items-center text-xs p-2"><span>📦</span>Orders</button>
-    <button onclick="showSection('templates')" class="flex flex-col items-center text-xs p-2"><span>🎨</span>Templates</button>
-    <button onclick="showSection('settings')" class="flex flex-col items-center text-xs p-2"><span>⚙️</span>Settings</button>
-  </div>
-
-  <!-- Loading Overlay with Music + Countdown -->
-  <div id="loadingOverlay" class="fixed inset-0 bg-[#0d4f3c]/95 text-white hidden flex-col items-center justify-center z-50 p-6 text-center">
-    <h2 class="text-2xl font-bold">Rendering 5 Christmas Portraits</h2>
-    <p class="text-white/80">Server-side AI - Meta Muse Image 1.0</p>
-    <div id="countdown" class="text- font-black text-[#f5c542] my-4">60</div>
-    <p class="text-sm">seconds - Keep tab open, music playing</p>
-    <div class="w-full max-w- bg-white/20 h-3 rounded-full mt-4 overflow-hidden"><div id="progressBar" class="h-full bg-[#f5c542] w-0 transition-all"></div></div>
-    <div class="flex gap-2 mt-6 flex-wrap justify-center" id="templateProgress"><div id="tpl-parol-magic" class="w- h- bg-white/20 rounded-xl flex items-center justify-center text- text-center">Parol<br>Magic</div><div id="tpl-noche-buena" class="w- h- bg-white/20 rounded-xl flex items-center justify-center text-">Noche<br>Buena</div><div id="tpl-snow-pinas" class="w- h- bg-white/20 rounded-xl flex items-center justify-center text-">Snow<br>Pinas</div><div id="tpl-simbang-gabi" class="w- h- bg-white/20 rounded-xl flex items-center justify-center text-">Simbang<br>Gabi</div><div id="tpl-family-belen" class="w- h- bg-white/20 rounded-xl flex items-center justify-center text-">Family<br>Belen</div></div>
-    <p id="currentTemplate" class="mt-4 text-[#f5c542] font-semibold">Starting...</p>
-    <div class="mt-6 flex items-center gap-3 bg-white/10 px-5 py-3 rounded-full"><span class="text-sm">Christmas Music</span><button id="musicBtn" onclick="toggleMusic()" class="bg-[#f5c542] text-black px-4 py-1.5 rounded-full text-sm font-semibold">Pause</button></div>
-    <audio id="bgMusic" loop><source src="https://cdn.pixabay.com/download/audio/2022/12/01/audio_8a7f8c1e0e.mp3?filename=christmas-magic-122145.mp3" type="audio/mpeg"></audio>
-  </div>
+  <div class="bnav"><button onclick="showSection('dashboard')">📊<span>Dashboard</span></button><button onclick="showSection('orders')">📦<span>Orders</span></button><button onclick="showSection('templates')">🎨<span>Templates</span></button><button onclick="showSection('settings')">⚙️<span>Settings</span></button></div>
+  <div id="loadingOverlay" class="overlay hidden"><h2 style="font-size:22px;font-weight:800">Rendering 5 Christmas Portraits</h2><p style="opacity:.8;font-size:13px">Server-side Meta Muse Image 1.0</p><div id="countdown" class="count">60</div><p style="font-size:12px;opacity:.8">Keep tab open - music playing (no 403)</p><div class="pbar"><div id="progressBar" class="pfill"></div></div><div class="tpls" id="templateProgress"><div id="tpl-parol-magic" class="tpl">Parol<br>Magic</div><div id="tpl-noche-buena" class="tpl">Noche<br>Buena</div><div id="tpl-snow-pinas" class="tpl">Snow<br>Pinas</div><div id="tpl-simbang-gabi" class="tpl">Simbang<br>Gabi</div><div id="tpl-family-belen" class="tpl">Family<br>Belen</div></div><p id="currentTemplate" style="margin-top:12px;color:var(--gold);font-weight:600;font-size:13px">Starting...</p><div style="margin-top:18px;display:flex;gap:10px;align-items:center;background:rgba(255,255,255,.1);padding:10px 16px;border-radius:999px"><span style="font-size:12px">Christmas Music (Web Audio)</span><button id="musicBtn" onclick="toggleMusic()" class="btn btn-gold" style="padding:6px 12px;font-size:12px">Pause</button></div><p style="font-size:11px;opacity:.6;margin-top:10px">Built-in Web Audio API - no external 403</p></div>
 </div>
-
 <script>
-const els={loginScreen:document.getElementById('loginScreen'),dashboard:document.getElementById('dashboard'),loginInput:document.getElementById('adminKeyInput'),ordersList:document.getElementById('ordersList')};
-let countdownInt=null,musicPlaying=false;
+let countdownInt=null,audioCtx=null,oscillators=[],musicPlaying=false;
+function getAudioCtx(){ if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+function playChristmasJingle(){
+  try{
+    const ctx=getAudioCtx();
+    const notes=[261.63,329.63,392,523.25,392,329.63,261.63,329.63,392,440,392,329.63]; // C4 E4 G4 C5 etc Jingle-ish
+    let t=ctx.currentTime;
+    notes.forEach((freq,i)=>{
+      const osc=ctx.createOscillator(); const gain=ctx.createGain();
+      osc.type='sine'; osc.frequency.value=freq;
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.15, t+0.05);
+      gain.gain.linearRampToValueAtTime(0, t+0.4);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(t); osc.stop(t+0.45);
+      t+=0.35;
+    });
+    setTimeout(()=>{ if(musicPlaying) playChristmasJingle(); }, notes.length*0.35*1000+200);
+  }catch(e){ console.log('Web Audio blocked',e); }
+}
+function startMusic(){ musicPlaying=true; playChristmasJingle(); const b=document.getElementById('musicBtn'); if(b) b.textContent='Pause'; }
+function stopMusic(){ musicPlaying=false; if(audioCtx){ try{ audioCtx.close(); audioCtx=null; }catch{} } const b=document.getElementById('musicBtn'); if(b) b.textContent='Play'; }
+function toggleMusic(){ if(musicPlaying) stopMusic(); else startMusic(); }
+window.toggleMusic=toggleMusic;
 async function api(p,o={}){ const r=await fetch(p,{...o,headers:{'Content-Type':'application/json',...(o.headers||{})},credentials:'include'}); if(r.status===401){ showLogin(); throw new Error('Unauthorized'); } const j=await r.json().catch(()=>({})); if(!r.ok) throw new Error(j.error||'Failed'); return j; }
-function showLogin(){ els.loginScreen.classList.remove('hidden'); els.loginScreen.classList.add('flex'); els.dashboard.classList.add('hidden'); }
-function showDashboard(){ els.loginScreen.classList.add('hidden'); els.dashboard.classList.remove('hidden'); }
-function showSection(name){ document.querySelectorAll('.section').forEach(s=>s.classList.add('hidden')); document.getElementById('section-'+name).classList.remove('hidden'); document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active','bg-[#0d4f3c]','text-white')); event?.target?.classList?.add('bg-[#0d4f3c]','text-white'); if(name==='orders') loadOrders('pending'); if(name==='dashboard') loadStats(); }
+function showLogin(){ document.getElementById('loginScreen').classList.remove('hidden'); document.getElementById('dashboard').classList.add('hidden'); }
+function showDashboard(){ document.getElementById('loginScreen').classList.add('hidden'); document.getElementById('dashboard').classList.remove('hidden'); }
+window.showSection=function(name){ document.querySelectorAll('.section').forEach(s=>s.classList.add('hidden')); const el=document.getElementById('section-'+name); if(el) el.classList.remove('hidden'); };
 async function checkSession(){ try{ const r=await fetch('/api/admin/session',{credentials:'include'}); const j=await r.json(); return j.authenticated; }catch{ return false; } }
-async function login(){ const pwd=els.loginInput?.value?.trim(); if(!pwd) return alert('Enter admin key'); try{ await api('/api/admin/login',{method:'POST',body:JSON.stringify({password:pwd})}); location.reload(); }catch{ alert('Maling password!'); } }
+async function login(){ const pwd=document.getElementById('adminKeyInput')?.value?.trim(); if(!pwd) return alert('Enter admin key'); try{ await api('/api/admin/login',{method:'POST',body:JSON.stringify({password:pwd})}); location.reload(); }catch{ alert('Maling password!'); } }
 async function logout(){ await fetch('/api/admin/logout',{method:'POST',credentials:'include'}); location.reload(); }
-window.login=login; window.logout=logout; window.showSection=showSection;
-function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('hidden'); }
-window.toggleSidebar=toggleSidebar;
-async function loadStats(){ try{ const d=await api('/api/admin/orders?stats=1'); document.getElementById('statTotal').textContent=d.total||0; document.getElementById('statPending').textContent=d.pending||0; document.getElementById('statRevenue').textContent='₱'+(d.revenue||0); document.getElementById('statCompleted').textContent=d.completed||0; document.getElementById('revTotal').textContent='₱'+(d.revenue||0); document.getElementById('notifBadge').textContent=d.pending||0; document.getElementById('pendingBadge').textContent=(d.pending||0)+' pending'; }catch{} }
+window.login=login; window.logout=logout;
+async function loadStats(){ try{ const d=await api('/api/admin/orders?stats=1'); document.getElementById('statTotal').textContent=d.total||0; document.getElementById('statPending').textContent=d.pending||0; document.getElementById('statRevenue').textContent='₱'+(d.revenue||0); document.getElementById('statCompleted').textContent=d.completed||0; const rt=document.getElementById('revTotal'); if(rt) rt.textContent='₱'+(d.revenue||0); document.getElementById('notifBadge').textContent=d.pending||0; document.getElementById('pendingBadge').textContent=(d.pending||0)+' pending'; document.getElementById('vBadge').style.display='inline-block'; }catch{} }
 async function loadOrders(status,btn){
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); if(btn) btn.classList.add('active');
-  if(!els.ordersList) return; els.ordersList.innerHTML='<p>Loading...</p>';
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active')); if(btn) btn.classList.add('active');
+  const list=document.getElementById('ordersList'); if(!list) return; list.innerHTML='<p style="color:var(--muted)">Loading...</p>';
   try{
     const d=await api(`/api/admin/orders?status=${status||''}`);
     const orders=Array.isArray(d)?d:(d.orders||[]);
-    if(!orders.length){ els.ordersList.innerHTML=`<p class="text-gray-500">No orders in ${status||'all'}</p>`; return; }
-    els.ordersList.innerHTML='';
+    if(!orders.length){ list.innerHTML=`<p style="color:var(--muted)">No orders in ${status||'all'}</p>`; return; }
+    list.innerHTML='';
     orders.forEach(o=>{
-      const div=document.createElement('div'); div.className='bg-white p-4 rounded-2xl shadow-sm flex gap-4';
+      const div=document.createElement('div'); div.className='card order-card';
       const esc=s=>(s||'').toString().replace(/</g,'&lt;');
       const isP149=o.package==='P149';
-      div.innerHTML=`<img src="" data-path="${esc(o.photo_url||'')}" class="w- h- rounded-xl bg-gray-100 object-cover" id="img-${o.id}"><div class="flex-1"><p class="font-semibold">${esc(o.order_code)} - ${esc(o.customer_name)}</p><p class="text-xs text-gray-500">${esc(o.contact_info)} • ${new Date(o.created_at).toLocaleString()}</p><p class="mt-1"><span class="text-xs px-2 py-1 rounded-full ${isP149?'bg-[#f5c542]':'bg-gray-100'}">${esc(o.package)} ${isP149?'• MP4':''}</span> <span class="text-xs px-2 py-1 bg-gray-100 rounded-full">${esc(o.status)}</span> ${o.render_status?`<span class="text-xs">${esc(o.render_status)}</span>`:''}</p></div><div class="flex flex-col gap-1.5">${o.status==='pending'?`<button onclick="updateStatus('${o.id}','approved')" class="px-3 py-1.5 bg-[#0d4f3c] text-white rounded-full text-xs">Approve</button>`:''}${o.status==='approved'?`<button onclick="startGenerate('${o.id}')" class="px-3 py-1.5 bg-[#f5c542] text-black rounded-full text-xs font-bold">Generate 5</button>`:''}${o.status==='completed'?`<button onclick="startGenerate('${o.id}')" class="px-3 py-1.5 bg-gray-100 rounded-full text-xs">Retry</button>`:''}<button onclick="updateStatus('${o.id}','rejected')" class="px-3 py-1.5 bg-red-50 text-red-600 rounded-full text-xs">Reject</button></div>`;
-      els.ordersList.appendChild(div);
+      div.innerHTML=`<img src="" data-path="${esc(o.photo_url||'')}" style="width:72px;height:72px;border-radius:12px;background:#f3f4f6;object-fit:cover"><div style="flex:1"><p style="font-weight:600;font-size:13px">${esc(o.order_code)} - ${esc(o.customer_name)}</p><p style="font-size:11px;color:var(--muted)">${esc(o.contact_info)} • ${new Date(o.created_at).toLocaleString()}</p><p style="margin-top:4px"><span class="badge ${isP149?'badge-gold':''}">${esc(o.package)} ${isP149?'• MP4':''}</span> <span class="badge">${esc(o.status)}</span></p></div><div style="display:flex;flex-direction:column;gap:6px">${o.status==='pending'?`<button onclick="updateStatus('${o.id}','approved')" class="btn btn-green" style="padding:8px 10px;font-size:11px">Approve</button>`:''}${o.status==='approved'?`<button onclick="startGenerate('${o.id}')" class="btn btn-gold" style="padding:8px 10px;font-size:11px">Generate 5</button>`:''}${o.status==='completed'?`<button onclick="startGenerate('${o.id}')" class="btn btn-white" style="padding:8px 10px;font-size:11px">Retry</button>`:''}</div>`;
+      list.appendChild(div);
     });
-  }catch(e){ els.ordersList.innerHTML=`<p class="text-red-500">${e.message}</p>`; }
+  }catch(e){ list.innerHTML=`<p style="color:#ef4444">${e.message}</p>`; }
 }
 window.loadOrders=loadOrders;
 async function updateStatus(id,st){ if(!confirm(`Mark as ${st}?`)) return; try{ await api('/api/admin/update-status',{method:'POST',body:JSON.stringify({orderId:id,status:st})}); loadOrders('pending'); loadStats(); }catch(e){ alert(e.message); } }
 window.updateStatus=updateStatus;
-function showLoading(){ document.getElementById('loadingOverlay').classList.remove('hidden'); document.getElementById('loadingOverlay').classList.add('flex'); let sec=60; document.getElementById('countdown').textContent=sec; document.getElementById('progressBar').style.width='0%'; document.querySelectorAll('#templateProgress div').forEach(d=>{d.classList.remove('bg-[#f5c542]','text-black'); d.classList.add('bg-white/20');}); const music=document.getElementById('bgMusic'); music.play().then(()=>{musicPlaying=true;}).catch(()=>{}); countdownInt=setInterval(()=>{ sec--; document.getElementById('countdown').textContent=sec>=0?sec:'Almost done...'; document.getElementById('progressBar').style.width=((60-sec)/60*100)+'%'; if(sec<=0) clearInterval(countdownInt); },1000); }
-function hideLoading(){ document.getElementById('loadingOverlay').classList.add('hidden'); if(countdownInt) clearInterval(countdownInt); document.getElementById('bgMusic').pause(); }
-function updateTpl(id,status){ const el=document.getElementById('tpl-'+id); if(!el) return; if(status==='active'){ el.classList.add('bg-white','text-[#0d4f3c]'); document.getElementById('currentTemplate').textContent='Generating: '+id.replace('-',' '); } else if(status==='done'){ el.classList.remove('bg-white','bg-white/20'); el.classList.add('bg-[#f5c542]','text-black'); } }
-window.toggleMusic=function(){ const m=document.getElementById('bgMusic'); const b=document.getElementById('musicBtn'); if(musicPlaying){ m.pause(); b.textContent='Play'; musicPlaying=false; } else { m.play(); b.textContent='Pause'; musicPlaying=true; } }
+function showLoading(){ document.getElementById('loadingOverlay').classList.remove('hidden'); let sec=60; document.getElementById('countdown').textContent=sec; document.getElementById('progressBar').style.width='0%'; document.querySelectorAll('.tpl').forEach(d=>d.classList.remove('done')); startMusic(); countdownInt=setInterval(()=>{ sec--; document.getElementById('countdown').textContent=sec>=0?sec:'Done!'; document.getElementById('progressBar').style.width=((60-sec)/60*100)+'%'; if(sec<=0) clearInterval(countdownInt); },1000); }
+function hideLoading(){ document.getElementById('loadingOverlay').classList.add('hidden'); if(countdownInt) clearInterval(countdownInt); stopMusic(); }
+function updateTpl(id,status){ const el=document.getElementById('tpl-'+id); if(!el) return; if(status==='active'){ el.style.background='#fff'; el.style.color='var(--green)'; document.getElementById('currentTemplate').textContent='Generating: '+id.replace('-',' '); } else if(status==='done'){ el.classList.add('done'); } }
 async function startGenerate(id){
-  if(!confirm('Start server-side AI rendering 5 Christmas templates? 60s with music')) return;
+  if(!confirm('Start server-side AI 5 templates? 60s with built-in music (no 403)')) return;
   showLoading();
   const tpls=['parol-magic','noche-buena','snow-pinas','simbang-gabi','family-belen'];
   let idx=0; const progInt=setInterval(()=>{ if(idx>0) updateTpl(tpls[idx-1],'done'); if(idx<tpls.length){ updateTpl(tpls[idx],'active'); idx++; } },12000);
@@ -161,11 +139,8 @@ async function startGenerate(id){
   }catch(e){ clearInterval(progInt); hideLoading(); alert('Failed: '+e.message); }
 }
 window.startGenerate=startGenerate;
-function exportCSV(){ alert('Exporting CSV - implement with /api/admin/orders?all'); }
-window.exportCSV=exportCSV;
-function testAI(){ alert('Testing Meta API muse-image-1.0 at api.meta.ai/v1/responses with MODEL_API_KEY... Check Vercel logs'); }
-window.testAI=testAI;
+window.exportCSV=function(){ alert('Export CSV via /api/admin/orders'); }
+window.testAI=function(){ alert('Meta API muse-image-1.0 test - no CDN, Web Audio music fixed'); }
 (async()=>{ const a=await checkSession(); if(a){ showDashboard(); loadOrders('pending'); loadStats(); } else { showLogin(); } })();
 </script>
-</body>
-</html>
+</body></html>
