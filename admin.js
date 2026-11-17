@@ -3,7 +3,7 @@
 // =====================================
 // Change this to your actual Supabase config (or link config.js)
 const SUPABASE_URL = 'https://vllqavcfqydtscbdrcex.supabase.co'; 
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // Paste your ANON key here
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsbHFhdmNmcXlkdHNjYmRyY2V4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDk...';
 
 // Change this to your secret password!
 const ADMIN_PASSWORD = '@Jesus143'; 
