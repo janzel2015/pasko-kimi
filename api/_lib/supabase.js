@@ -1,45 +1,49 @@
 // api/_lib/supabase.js — shared server-side Supabase admin client
 import { createClient } from '@supabase/supabase-js';
 
-let _client = null;
+let supabaseAdmin = null;
 
 export function getAdmin() {
-  if (_client) return _client;
+  if (supabaseAdmin) return supabaseAdmin;
+
   const url = process.env.SUPABASE_URL;
-  // accept either name so your old deployments don't break
-  const key =
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.SUPABASE_SERVICE_KEY;
+  // Accept either the new or legacy variable name for safety
+  const key = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+  
   if (!url || !key) {
-    throw new Error(
-      'Missing SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_SERVICE_KEY) env vars'
-    );
+    throw new Error('Missing SUPABASE_URL / SUPABASE_SERVICE_KEY env vars');
   }
-  _client = createClient(url, key, { auth: { persistSession: false } });
-  return _client;
+
+  supabaseAdmin = createClient(url, key, {
+    auth: { persistSession: false } // Prevents memory leaks in serverless
+  });
+  
+  return supabaseAdmin;
 }
 
 export function requireAdmin(req) {
   const auth = req.headers.authorization || '';
   const token = auth.replace(/^Bearer\s+/i, '');
-  const expected =
-    process.env.ADMIN_KEY ||
-    process.env.ADMIN_TOKEN; // accept both names
+  
+  // Accepts either ADMIN_TOKEN or ADMIN_KEY to match your frontend
+  const expected = process.env.ADMIN_TOKEN || process.env.ADMIN_KEY;
+  
   if (!expected || !token || token !== expected) {
-    const e = new Error('Unauthorized');
+    const e = new Error('Unauthorized — maling admin token');
     e.status = 401;
     throw e;
   }
 }
 
 export function json(res, status, body) {
-  // Vercel supports res.status().json() — but statusCode + setHeader is safest
+  // Uses statusCode for maximum Vercel compatibility
   res.statusCode = status;
   res.setHeader('Content-Type', 'application/json');
   res.end(JSON.stringify(body));
 }
 
 export function handleError(res, err) {
-  console.error(err);
-  json(res, err.status || 500, { error: err.message || 'Server error' });
+  console.error('API Error:', err);
+  const status = err.status || 500;
+  json(res, status, { error: err.message || 'Server error' });
 }
