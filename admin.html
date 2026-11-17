@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Pasko Photo Magic - Admin</title>
 <style>
@@ -24,7 +23,7 @@ body{font-family:Inter,system-ui,sans-serif;background:#f7f5f0;margin:0;display:
   <p>Secure HttpOnly Login</p>
   <input id="adminKeyInput" type="password" placeholder="Enter admin password">
   <button class="btn btn-login" onclick="login()">Login</button>
-  <p style="font-size:12px;color:#666;margin-top:12px">Password: @adminKAP10<br>HttpOnly secure session</p>
+  <p style="font-size:11px;color:#999;margin-top:12px">Protected by HttpOnly secure session</p>
 </div>
 <div id="dashboard" style="display:none;width:100%;min-height:100vh;background:#f7f5f0">
   <div class="header"><h3 style="margin:0">Pasko Photo Magic - Admin Dashboard</h3><button onclick="logout()" style="background:white;color:#0d4f3c;border:none;padding:8px 16px;border-radius:8px;cursor:pointer">Logout</button></div>
@@ -40,7 +39,7 @@ async function api(p,o={}){ const r=await fetch(p,{...o,headers:{'Content-Type':
 function showLogin(){ els.loginScreen.style.display='block'; els.dashboard.style.display='none'; }
 function showDashboard(){ els.loginScreen.style.display='none'; els.dashboard.style.display='block'; }
 async function checkSession(){ try{ const r=await fetch('/api/admin/session',{credentials:'include'}); const j=await r.json(); return j.authenticated; }catch{ return false; } }
-async function login(){ const pwd=els.loginInput?.value?.trim(); if(!pwd) return alert('Enter admin key'); try{ await api('/api/admin/login',{method:'POST',body:JSON.stringify({password:pwd})}); location.reload(); }catch(e){ alert('Maling password! '+e.message); } }
+async function login(){ const pwd=els.loginInput?.value?.trim(); if(!pwd) return alert('Enter admin key'); try{ await api('/api/admin/login',{method:'POST',body:JSON.stringify({password:pwd})}); location.reload(); }catch(e){ alert('Maling password!'); } }
 async function logout(){ await fetch('/api/admin/logout',{method:'POST',credentials:'include'}); location.reload(); }
 window.login=login; window.logout=logout;
 async function loadOrders(status,btn){
